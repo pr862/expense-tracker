@@ -1,0 +1,380 @@
+/* Container */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+/* Sidebar handled separately, dashboard content takes remaining space */
+.dashboard-content {
+  flex: 1;
+  min-height: 100vh;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+/* Mobile menu button */
+.mobile-menu-btn {
+  display: none;
+}
+
+/* Main dashboard wrapper */
+.dashboard-main {
+  padding: 1.25rem;
+  width: 100%; /* full width */
+  max-width: 100%;
+  margin: 0;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Header */
+.dashboard-header {
+  margin-bottom: 1rem;
+}
+
+.dashboard-header h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.dashboard-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Grid layout for main sections */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Section card */
+.dashboard-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.dashboard-section:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.dashboard-section h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+/* Profile grid */
+.profile-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+/* Profile card */
+.profile-card {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.profile-card h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.profile-card p {
+  margin: 0 0 0.5rem 0;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.profile-card strong {
+  color: #374151;
+}
+
+/* Preference item */
+.preference-item {
+  margin-bottom: 1rem;
+}
+
+.preference-item label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.preference-item select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.preference-item select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    padding: 1rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .dashboard-section {
+    padding: 1.25rem;
+  }
+
+  .dashboard-grid {
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .profile-content {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1001;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+  }
+
+  .hamburger-line {
+    width: 20px;
+    height: 2px;
+    background: #374151;
+    border-radius: 1px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-main {
+    padding: 0.75rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .dashboard-section {
+    padding: 1rem;
+  }
+
+  .dashboard-section h2 {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+  }
+
+  .profile-card {
+    padding: 1rem;
+  }
+
+  .preference-item select {
+    padding: 0.625rem;
+  }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Empty / Loading states */
+.dashboard-section.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.dashboard-section.empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: #f8fafc;
+  border: 2px dashed #e2e8f0;
+}
+/* Bottom Cards Row on Dashboard Home */
+.dashboard-bottom-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* Individual Bottom Cards */
+.transactions-card,
+.overview-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08),
+              0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+.transactions-card:hover,
+.overview-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.12),
+              0 2px 4px -1px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Card Header */
+.transactions-card h3,
+.overview-card h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+/* Transactions List */
+.transactions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.transactions-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.transactions-list li.income {
+  color: green;
+}
+
+.transactions-list li.expense {
+  color: red;
+}
+
+/* Add Expense Button */
+.transactions-card .add-btn {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Chart Container */
+.chart-container {
+  height: 200px;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+/* Chart Empty State */
+.chart-empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 2px dashed #e2e8f0;
+}
+
+.empty-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.chart-empty p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+/* Legacy chart-placeholder for compatibility */
+.chart-placeholder {
+  height: 150px;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  border-radius: 8px;
+}
+
+/* Budget Summary inside Overview Card */
+.budget-summary p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+/* Mobile Responsiveness for Bottom Cards */
+@media (max-width: 1024px) {
+  .dashboard-bottom-cards {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}

@@ -1,0 +1,78 @@
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: #0f172a;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.sidebar-logo {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.sidebar-logo span {
+  color: #38bdf8;
+}
+
+.add-expense-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #38bdf8;
+  color: #000;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.add-expense-btn:hover {
+  background: #0ea5e9;
+}
+
+.sidebar-nav {
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  color: #cbd5f5;
+  text-decoration: none;
+  margin-bottom: 6px;
+}
+
+.nav-item:hover {
+  background: #1e293b;
+}
+
+.nav-item.active {
+  background: #1e293b;
+  color: #38bdf8;
+}
+
+.sidebar-bottom {
+  border-top: 1px solid #1e293b;
+  padding-top: 10px;
+}
+
+.logout-btn {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #f87171;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  cursor: pointer;
+}
