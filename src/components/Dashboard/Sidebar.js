@@ -44,9 +44,7 @@ const Sidebar = ({ onLogout, user, isMobileOpen, onMobileClose }) => {
           <Wallet size={18} /> Budgets
         </NavLink>
 
-        <NavLink to="/dashboard/alerts" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <Bell size={18} /> Alerts
-        </NavLink>
+      
       </nav>
 
       {/* Bottom Section */}

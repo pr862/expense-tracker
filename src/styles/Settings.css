@@ -1,0 +1,171 @@
+.settings-page {
+  padding: 24px;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+/* Header */
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.settings-header h1 {
+  margin: 0;
+}
+
+.settings-header p {
+  color: #64748b;
+}
+
+/* Buttons */
+.primary-btn {
+  background: #6366f1;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+}
+
+.outline-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #c7d2fe;
+  color: #6366f1;
+  background: white;
+  margin-top: 12px;
+}
+
+/* Grid */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+/* Cards */
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.card h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* Forms */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+label {
+  font-size: 13px;
+  color: #64748b;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  margin-top: 6px;
+}
+
+/* Toggle */
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.toggle-row p {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.toggle-row input {
+  width: 40px;
+  height: 20px;
+}
+
+/* Accounts */
+.account-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.bank-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: white;
+  display: grid;
+  place-items: center;
+  font-weight: bold;
+}
+
+.bank-icon.blue {
+  background: #2563eb;
+}
+
+.bank-icon.green {
+  background: #22c55e;
+}
+
+.unlink {
+  margin-left: auto;
+  color: #ef4444;
+  cursor: pointer;
+}
+
+.link-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px dashed #cbd5f5;
+  border-radius: 10px;
+  background: transparent;
+  color: #6366f1;
+}
+
+/* Data */
+.data-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #f1f5f9;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.danger-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+}
+
+/* Footer */
+.version {
+  text-align: center;
+  font-size: 12px;
+  color: #94a3b8;
+}

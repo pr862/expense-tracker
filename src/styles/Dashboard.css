@@ -11,6 +11,7 @@
   min-height: 100vh;
   padding: 1.25rem;
   transition: all 0.3s ease;
+  margin-left: 240px;
 }
 
 /* Mobile menu button */
