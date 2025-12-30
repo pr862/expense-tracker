@@ -16,10 +16,11 @@ import SummaryCards from './SummaryCards';
 import ExpenseForm from './ExpenseForm';
 import ExpenseList from './ExpenseList';
 import Analytics from './Analytics';
-import BudgetSection from './BudgetSection';
+import BudgetSection from '../BudgetSection';
 import Notifications from './Notifications';
 import FloatingAddButton from './FloatingAddButton';
-import Profile from './Profile';
+import ProfilePage from './ProfilePage';
+import Settings from './Settings';
 import { useAuth } from '../../App';
 import '../../styles/Dashboard.css';
 
@@ -260,22 +261,6 @@ const AlertsPage = () => {
       
       <div className="dashboard-section">
         <p>Alert management coming soon...</p>
-      </div>
-    </div>
-  );
-};
-
-// Settings Page Component
-const SettingsPage = () => {
-  return (
-    <div className="dashboard-main">
-      <div className="dashboard-header">
-        <h1>Settings</h1>
-        <p>Manage your application preferences</p>
-      </div>
-      
-      <div className="dashboard-section">
-        <p>Settings page coming soon...</p>
       </div>
     </div>
   );
@@ -622,8 +607,8 @@ const Dashboard = () => {
         )}
         
         <Routes>
-          <Route path="/" element={
-            <DashboardHome 
+          <Route path="" element={
+            <DashboardHome
               expenses={expenses}
               budgets={budgets}
               user={user}
@@ -631,36 +616,27 @@ const Dashboard = () => {
               onEditExpense={handleEditExpense}
             />
           } />
-          <Route path="/dashboard" element={
-            <DashboardHome 
-              expenses={expenses}
-              budgets={budgets}
-              user={user}
-              onDeleteExpense={handleDeleteExpense}
-              onEditExpense={handleEditExpense}
-            />
-          } />
-          <Route path="/expenses" element={
-            <ExpensesPage 
+          <Route path="profile" element={<ProfilePage user={user} setUser={setUser} />} />
+          <Route path="expenses" element={
+            <ExpensesPage
               expenses={expenses}
               onDeleteExpense={handleDeleteExpense}
               onEditExpense={handleEditExpense}
             />
           } />
-          <Route path="/reports" element={
-            <ReportsPage 
+          <Route path="reports" element={
+            <ReportsPage
               expenses={expenses}
               budgets={budgets}
             />
           } />
-          <Route path="/budgets" element={
-            <BudgetsPage 
+          <Route path="budgets" element={
+            <BudgetsPage
               budgets={budgets}
             />
           } />
-          <Route path="/alerts" element={<AlertsPage />} />
-          <Route path="/profile" element={<Profile user={user} onUpdateUser={setUser} />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="alerts" element={<AlertsPage />} />
+          <Route path="settings" element={<Settings />} />
         </Routes>
       </div>
 
