@@ -12,6 +12,7 @@ import Sidebar from './Sidebar';
 import ExpenseForm from './ExpenseForm';
 import ExpenseList from './ExpenseList';
 import Analytics from './Analytics';
+<<<<<<< HEAD
 import BudgetsPage from './BudgetsPage';
 import Notifications from './Notifications';
 import ProfilePage from './ProfilePage';
@@ -19,6 +20,13 @@ import Settings from './Settings';
 import SummaryCards from './SummaryCards';
 import TypeSelection from './TypeSelection';
 import TopCategories from './TopCategories';
+=======
+import BudgetSection from '../BudgetSection';
+import Notifications from './Notifications';
+import FloatingAddButton from './FloatingAddButton';
+import ProfilePage from './ProfilePage';
+import Settings from './Settings';
+>>>>>>> 43c0a9ca (initial commit)
 import { useAuth } from '../../App';
 import '../../styles/Dashboard.css';
 
