@@ -20,12 +20,6 @@ const Sidebar = ({ onLogout, user, isMobileOpen, onMobileClose }) => {
         Expense<span>Track</span>
       </div>
 
-      {/* Primary Action */}
-      <button className="add-expense-btn">
-        <Plus size={18} />
-        New Expense
-      </button>
-
       {/* Navigation */}
       <nav className="sidebar-nav">
         <NavLink to="/dashboard" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>

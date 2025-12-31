@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import '../../styles/ExpenseForm.css';
 
 const ExpenseForm = ({ onClose, onSubmit, expense = null, defaultType = 'expense' }) => {

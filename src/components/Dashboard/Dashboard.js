@@ -1,179 +1,205 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { Line } from 'react-chartjs-2';
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
   Tooltip,
-  Legend,
-} from 'chart.js';
+  ResponsiveContainer,
+} from "recharts";
 import Sidebar from './Sidebar';
-import SummaryCards from './SummaryCards';
 import ExpenseForm from './ExpenseForm';
 import ExpenseList from './ExpenseList';
 import Analytics from './Analytics';
-import BudgetSection from '../BudgetSection';
+import BudgetsPage from './BudgetsPage';
 import Notifications from './Notifications';
-import FloatingAddButton from './FloatingAddButton';
 import ProfilePage from './ProfilePage';
 import Settings from './Settings';
+import SummaryCards from './SummaryCards';
+import TypeSelection from './TypeSelection';
+import TopCategories from './TopCategories';
 import { useAuth } from '../../App';
 import '../../styles/Dashboard.css';
 
-// Register Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
 // Dashboard Home Page Component
-const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense }) => {
+const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense, onAddExpense }) => {
+  const [selectedPeriod, setSelectedPeriod] = useState('this-week');
+  const [isPeriodOpen, setIsPeriodOpen] = useState(false);
 
-  // Calculate remaining budget for quick stats
-  const totalBudget = budgets.reduce((sum, b) => sum.limit + sum, 0);
-  const totalSpent = expenses
-    .filter(exp => exp.type === 'expense')
-    .reduce((sum, exp) => sum + exp.amount, 0);
-  const remaining = totalBudget - totalSpent;
-
-  // Calculate monthly data for chart
-  const monthlyChartData = useMemo(() => {
-    const monthlyExpenses = expenses
-      .filter(expense => expense.type === 'expense')
-      .reduce((acc, expense) => {
-        const month = new Date(expense.date).toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'short' 
-        });
-        acc[month] = (acc[month] || 0) + expense.amount;
-        return acc;
-      }, {});
-
-    const monthlyIncome = expenses
-      .filter(expense => expense.type === 'income')
-      .reduce((acc, expense) => {
-        const month = new Date(expense.date).toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'short' 
-        });
-        acc[month] = (acc[month] || 0) + expense.amount;
-        return acc;
-      }, {});
-
-    const allMonths = [...new Set([...Object.keys(monthlyExpenses), ...Object.keys(monthlyIncome)])];
-    allMonths.sort((a, b) => new Date(a) - new Date(b));
-
-    // Get last 6 months for better visualization
-    const recentMonths = allMonths.slice(-6);
-
-    return {
-      labels: recentMonths,
-      datasets: [
-        {
-          label: 'Expenses',
-          data: recentMonths.map(month => monthlyExpenses[month] || 0),
-          borderColor: '#ef4444',
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-          tension: 0.4,
-        },
-        {
-          label: 'Income',
-          data: recentMonths.map(month => monthlyIncome[month] || 0),
-          borderColor: '#10b981',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          tension: 0.4,
-        },
-      ],
-    };
-  }, [expenses]);
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top',
-        display: true,
-      },
-      tooltip: {
-        callbacks: {
-          label: function(context) {
-            const value = new Intl.NumberFormat('en-US', {
-              style: 'currency',
-              currency: 'USD'
-            }).format(context.parsed);
-            return `${context.dataset.label}: ${value}`;
-          }
-        }
-      }
-    },
-    scales: {
-      x: {
-        display: true,
-        grid: {
-          display: false,
-        },
-      },
-      y: {
-        display: true,
-        grid: {
-          display: true,
-          color: 'rgba(0, 0, 0, 0.1)',
-        },
-        ticks: {
-          callback: function(value) {
-            return '$' + value.toLocaleString();
-          }
-        }
-      }
-    }
+  // Category icons mapping
+  const categoryIcons = {
+    'Food': '🍎',
+    'Rent': '🏠',
+    'Salary': '💼',
+    'Transport': '🚗',
+    'Utilities': '⚡',
+    'Entertainment': '🎉',
+    'Groceries': '🛒',
+    'Shopping': '🛍️',
+    default: '💳'
   };
+
+  // Weekly chart data (last 7 days for Recharts)
+  const weeklyChartData = useMemo(() => {
+    const now = new Date();
+    let dayOfWeek = now.getDay();
+    let daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const currentMonday = new Date(now.getTime() - daysToSubtract * 24 * 60 * 60 * 1000);
+    let startOfWeek, endOfWeek;
+
+    if (selectedPeriod === 'last-week') {
+      const lastMonday = new Date(currentMonday.getTime() - 7 * 24 * 60 * 60 * 1000);
+      startOfWeek = lastMonday;
+      endOfWeek = new Date(lastMonday.getTime() + 7 * 24 * 60 * 60 * 1000);
+    } else {
+      startOfWeek = currentMonday;
+      endOfWeek = new Date(currentMonday.getTime() + 7 * 24 * 60 * 60 * 1000);
+    }
+
+    const weeklyExpenses = expenses
+      .filter(expense => {
+        const expenseDate = new Date(expense.date);
+        return expense.type === 'expense' &&
+               expenseDate >= startOfWeek &&
+               expenseDate < endOfWeek;
+      })
+      .reduce((acc, expense) => {
+        const date = new Date(expense.date);
+        const dayIndex = (date.getDay() + 6) % 7; // 0=Mon, 6=Sun
+        acc[dayIndex] = (acc[dayIndex] || 0) + expense.amount;
+        return acc;
+      }, {});
+
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const data = days.map((day, index) => ({
+      day,
+      value: weeklyExpenses[index] || 0
+    }));
+
+    return data;
+  }, [expenses, selectedPeriod]);
+
+  const hasWeeklyData = weeklyChartData.some(item => item.value > 0);
+
+  // Handle download expenses as CSV
+  const handleDownload = () => {
+    if (expenses.length === 0) {
+      alert('No expenses to download.');
+      return;
+    }
+
+    const csvHeaders = ['Date', 'Type', 'Category', 'Amount', 'Note'];
+    const csvRows = expenses.map(exp => [
+      exp.date,
+      exp.type,
+      exp.category,
+      exp.amount,
+      exp.note || ''
+    ]);
+
+    const csvContent = [csvHeaders, ...csvRows]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'expenses.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Top categories data for new component
+  const topCategoriesData = useMemo(() => {
+    if (budgets.length === 0) {
+      return [];
+    }
+
+    // Map budgets to include spent amounts and colors (budgets already have spent calculated based on their period)
+    const colors = ['blue', 'red', 'yellow', 'green', 'purple'];
+    return budgets.slice(0, 5).map((budget, index) => ({
+      name: budget.category,
+      spent: budget.spent || 0,
+      total: budget.limit,
+      color: colors[index % colors.length]
+    }));
+  }, [budgets]);
 
   return (
     <div className="dashboard-main">
       <div className="dashboard-header">
-        <h1>Home</h1>
-        <p>Welcome back, {user?.name || 'User'}!</p>
+        <div>
+          <h1>Dashboard <span className="subtitle">Financial Overview</span></h1>
+          <p>Welcome back, {user?.name || 'User'}!</p>
+        </div>
+        <div className="header-actions">
+          <button className="download-btn" onClick={handleDownload}>Download</button>
+          <button className="add-btn" onClick={onAddExpense}>+ Add</button>
+        </div>
       </div>
 
-      {/* Top Summary Cards */}
-      <SummaryCards expenses={expenses} />
+      {/* Summary Cards */}
+      <div className="summary-grid">
+        <SummaryCards expenses={expenses} budgets={budgets} />
+      </div>
 
-      {/* Bottom Cards Row */}
-      <div className="dashboard-bottom-cards">
-        {/* Recent Transactions Card */}
-        <div className="card transactions-card">
-          <h3>Recent Transactions</h3>
-          {expenses.length === 0 ? (
-            <p>No expenses recorded yet.</p>
-          ) : (
-            <ul className="transactions-list">
-              {expenses.slice(-5).reverse().map(exp => (
-                <li key={exp.id} className={exp.type === 'expense' ? 'expense' : 'income'}>
-                  <span>{exp.category}</span>
-                  <span>${exp.amount.toFixed(2)}</span>
-                  <span>{exp.date}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Monthly Overview Card */}
-        <div className="card overview-card">
-          <h3>Monthly Overview</h3>
+      {/* Charts Grid */}
+      <div className="charts-grid">
+        <div className="weekly-chart">
+          <div className="weekly-header">
+            <h3>Weekly Spending</h3>
+            <div className="period-select">
+              <div
+                className="period-button"
+                onClick={() => setIsPeriodOpen(!isPeriodOpen)}
+              >
+                <span>{selectedPeriod === 'this-week' ? 'This Week' : 'Last Week'}</span>
+                <span className={`arrow ${isPeriodOpen ? 'open' : ''}`}>▼</span>
+              </div>
+              {isPeriodOpen && (
+                <div className="period-options">
+                  <div
+                    className={`period-option ${selectedPeriod === 'this-week' ? 'selected' : ''}`}
+                    onClick={() => {
+                      setSelectedPeriod('this-week');
+                      setIsPeriodOpen(false);
+                    }}
+                  >
+                    This Week
+                  </div>
+                  <div
+                    className={`period-option ${selectedPeriod === 'last-week' ? 'selected' : ''}`}
+                    onClick={() => {
+                      setSelectedPeriod('last-week');
+                      setIsPeriodOpen(false);
+                    }}
+                  >
+                    Last Week
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
           <div className="chart-container">
-            {monthlyChartData.labels.length > 0 ? (
-              <Line data={monthlyChartData} options={chartOptions} />
+            {hasWeeklyData ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <AreaChart data={weeklyChartData}>
+                  <defs>
+                    <linearGradient id="spending" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fontSize: 12}} interval={0} />
+                  <YAxis tickFormatter={(value) => `$${value.toLocaleString()}`} axisLine={false} tickLine={false} tick={{fontSize: 12}} />
+                  <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Spending']} />
+                  <Area type="monotone" dataKey="value" stroke="#6366f1" fill="url(#spending)" />
+                </AreaChart>
+              </ResponsiveContainer>
             ) : (
               <div className="chart-empty">
                 <div className="empty-icon">📈</div>
@@ -181,17 +207,47 @@ const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense
               </div>
             )}
           </div>
-          <div className="budget-summary">
-            <p>Total Budget: ${totalBudget}</p>
-            <p>Spent: ${totalSpent}</p>
-            <p>Remaining: ${remaining}</p>
-          </div>
         </div>
+
+        <div className="top-categories">
+          {topCategoriesData.length > 0 ? (
+            <TopCategories categories={topCategoriesData} />
+          ) : (
+            <div className="chart-empty">
+              <div className="empty-icon">📊</div>
+              <p>No budget data available</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Recent Transactions */}
+      <div className="recent-transactions">
+        <h3>Recent Transactions <span className="view-all">View all</span></h3>
+        {expenses.length === 0 ? (
+          <p>No transactions recorded yet.</p>
+        ) : (
+          <div className="transactions-table">
+            {expenses.slice(-5).reverse().map(exp => (
+              <div key={exp.id} className={`transaction-item ${exp.type === 'expense' ? 'expense' : 'income'}`}>
+                <div className="transaction-info">
+                  <span className="icon">{categoryIcons[exp.category] || categoryIcons.default}</span>
+                  <div>
+                    <div className="description">{exp.category} - {exp.note}</div>
+                    <div className="date-time">{exp.date} {exp.time || '12:00 PM'}</div>
+                  </div>
+                </div>
+                <div className="amount">
+                  {exp.type === 'income' ? '+' : '-'}${exp.amount.toFixed(2)}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 };
-
 
 // Expenses Page Component
 const ExpensesPage = ({ expenses, onDeleteExpense, onEditExpense }) => {
@@ -201,10 +257,10 @@ const ExpensesPage = ({ expenses, onDeleteExpense, onEditExpense }) => {
         <h1>Expense Management</h1>
         <p>Track and manage all your expenses</p>
       </div>
-      
+
       <div className="dashboard-section">
-        <ExpenseList 
-          expenses={expenses} 
+        <ExpenseList
+          expenses={expenses}
           onDeleteExpense={onDeleteExpense}
           onEditExpense={onEditExpense}
           showActions={true}
@@ -218,37 +274,12 @@ const ExpensesPage = ({ expenses, onDeleteExpense, onEditExpense }) => {
 const ReportsPage = ({ expenses, budgets }) => {
   return (
     <div className="dashboard-main">
-      <div className="dashboard-header">
-        <h1>Reports</h1>
-        <p>Insights into your spending patterns</p>
-      </div>
-      
       <div className="dashboard-section">
         <Analytics expenses={expenses} budgets={budgets} />
       </div>
     </div>
   );
 };
-
-// Budgets Page Component
-const BudgetsPage = ({ budgets }) => {
-  return (
-    <div className="dashboard-main">
-      <div className="dashboard-header">
-        <h1>Budget Management</h1>
-        <p>Set and monitor your spending limits</p>
-      </div>
-      
-      <div className="dashboard-section">
-        <BudgetSection budgets={budgets} />
-      </div>
-    </div>
-  );
-};
-
-
-
-
 
 // Alerts Page Component
 const AlertsPage = () => {
@@ -258,7 +289,7 @@ const AlertsPage = () => {
         <h1>Alerts</h1>
         <p>Manage your financial alerts and notifications</p>
       </div>
-      
+
       <div className="dashboard-section">
         <p>Alert management coming soon...</p>
       </div>
@@ -272,13 +303,48 @@ const Dashboard = () => {
   const { logout } = useAuth();
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showIncomeForm, setShowIncomeForm] = useState(false);
-  const [formType, setFormType] = useState(null);
+  const [showTypeSelection, setShowTypeSelection] = useState(false);
   const [expenses, setExpenses] = useState([]);
   const [budgets, setBudgets] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [user, setUser] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  // Function to calculate spent amounts for budgets based on expenses
+  const calculateBudgetSpent = (budgets, expenses) => {
+    const currentDate = new Date();
+    return budgets.map(budget => {
+      let startDate, endDate;
+      if (budget.period === 'weekly') {
+        // Current week: Monday to Sunday
+        const day = currentDate.getDay();
+        const diff = currentDate.getDate() - day + (day === 0 ? -6 : 1);
+        startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), diff);
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
+      } else if (budget.period === 'monthly') {
+        startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      } else if (budget.period === 'yearly') {
+        startDate = new Date(currentDate.getFullYear(), 0, 1);
+        endDate = new Date(currentDate.getFullYear(), 11, 31);
+      } else {
+        // Default to monthly
+        startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      }
+
+      const periodExpenses = expenses.filter(exp => {
+        const expDate = new Date(exp.date);
+        return exp.type === 'expense' && 
+               exp.category.toLowerCase() === budget.category.toLowerCase() && 
+               expDate >= startDate && expDate <= endDate;
+      });
+      const spent = periodExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+      return { ...budget, spent };
+    });
+  };
 
   // Handle window resize
   useEffect(() => {
@@ -301,7 +367,13 @@ const Dashboard = () => {
     const savedNotifications = localStorage.getItem('notifications');
 
     if (savedUser) setUser(JSON.parse(savedUser));
-    if (savedExpenses) {
+    
+    // Clear initial dummy data only once
+    if (!localStorage.getItem('dummy_cleared')) {
+      localStorage.removeItem('expenses');
+      localStorage.setItem('dummy_cleared', 'true');
+      setExpenses([]);
+    } else if (savedExpenses) {
       try {
         const parsedExpenses = JSON.parse(savedExpenses);
         setExpenses(Array.isArray(parsedExpenses) ? parsedExpenses : []);
@@ -310,6 +382,7 @@ const Dashboard = () => {
         setExpenses([]);
       }
     }
+    
     if (savedBudgets) {
       try {
         const parsedBudgets = JSON.parse(savedBudgets);
@@ -321,48 +394,13 @@ const Dashboard = () => {
     }
     if (savedNotifications) setNotifications(JSON.parse(savedNotifications));
 
-    // Initialize with sample data if no data exists
-    if (!savedExpenses) {
-      const sampleExpenses = [
-        {
-          id: '1',
-          amount: 1500,
-          category: 'Salary',
-          date: '2024-01-01',
-          note: 'Monthly salary',
-          type: 'income'
-        },
-        {
-          id: '2',
-          amount: 500,
-          category: 'Food',
-          date: '2024-01-02',
-          note: 'Groceries',
-          type: 'expense'
-        },
-        {
-          id: '3',
-          amount: 1200,
-          category: 'Rent',
-          date: '2024-01-01',
-          note: 'Monthly rent',
-          type: 'expense'
-        }
-      ];
-      setExpenses(sampleExpenses);
-      localStorage.setItem('expenses', JSON.stringify(sampleExpenses));
-    }
 
-    if (!savedBudgets) {
-      const sampleBudgets = [
-        { category: 'Food', limit: 1000, spent: 500, period: 'monthly' },
-        { category: 'Travel', limit: 500, spent: 200, period: 'monthly' },
-        { category: 'Entertainment', limit: 300, spent: 150, period: 'monthly' }
-      ];
-      setBudgets(sampleBudgets);
-      localStorage.setItem('budgets', JSON.stringify(sampleBudgets));
-    }
   }, []);
+
+  // Save expenses to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('expenses', JSON.stringify(expenses));
+  }, [expenses]);
 
   const handleLogout = () => {
     // Clear authentication state
@@ -407,16 +445,20 @@ const Dashboard = () => {
     ));
   };
 
-  const handleAddIncome = () => {
-    setFormType('income');
-    setShowIncomeForm(true);
-    setShowExpenseForm(false);
+  const handleOpenTypeSelection = () => {
+    setShowTypeSelection(true);
   };
 
-  const handleOpenExpenseForm = () => {
-    setFormType('expense');
+  const handleSelectExpense = () => {
+    setShowTypeSelection(false);
     setShowExpenseForm(true);
     setShowIncomeForm(false);
+  };
+
+  const handleSelectIncome = () => {
+    setShowTypeSelection(false);
+    setShowIncomeForm(true);
+    setShowExpenseForm(false);
   };
 
   // Notification generation functions
@@ -573,6 +615,21 @@ const Dashboard = () => {
     }
   }, [expenses, budgets, generateAllNotifications]); // Regenerate when expenses or budgets change
 
+  // Save budgets to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('budgets', JSON.stringify(budgets));
+  }, [budgets]);
+
+  // Update budgets with calculated spent amounts whenever expenses or budgets change
+  useEffect(() => {
+    if (budgets.length > 0) {
+      const updatedBudgets = calculateBudgetSpent(budgets, expenses);
+      setBudgets(updatedBudgets);
+    }
+  }, [expenses, budgets.length]); // Note: budgets.length to avoid infinite loop
+
+
+
   // Save notifications to localStorage whenever they change
   useEffect(() => {
     if (notifications.length > 0) {
@@ -614,6 +671,7 @@ const Dashboard = () => {
               user={user}
               onDeleteExpense={handleDeleteExpense}
               onEditExpense={handleEditExpense}
+              onAddExpense={handleOpenTypeSelection}
             />
           } />
           <Route path="profile" element={<ProfilePage user={user} setUser={setUser} />} />
@@ -633,6 +691,19 @@ const Dashboard = () => {
           <Route path="budgets" element={
             <BudgetsPage
               budgets={budgets}
+              expenses={expenses}
+              onAddBudget={(budget) => {
+                const newBudgetWithSpent = calculateBudgetSpent([budget], expenses)[0];
+                setBudgets(prev => [...prev, newBudgetWithSpent]);
+              }}
+              onDeleteBudget={(index) => {
+                setBudgets(prev => prev.filter((_, i) => i !== index));
+              }}
+              onEditBudget={(index, updatedBudget) => {
+                const tempBudgets = budgets.map((b, i) => i === index ? updatedBudget : b);
+                const updatedBudgets = calculateBudgetSpent(tempBudgets, expenses);
+                setBudgets(updatedBudgets);
+              }}
             />
           } />
           <Route path="alerts" element={<AlertsPage />} />
@@ -640,10 +711,14 @@ const Dashboard = () => {
         </Routes>
       </div>
 
-      {isDashboardHome && (
-        <FloatingAddButton 
-          onAddIncome={handleAddIncome}
-          onAddExpense={handleOpenExpenseForm}
+   
+       
+
+      {showTypeSelection && (
+        <TypeSelection
+          onSelectExpense={handleSelectExpense}
+          onSelectIncome={handleSelectIncome}
+          onClose={() => setShowTypeSelection(false)}
         />
       )}
 
@@ -651,7 +726,6 @@ const Dashboard = () => {
         <ExpenseForm
           onClose={() => {
             setShowExpenseForm(false);
-            setFormType(null);
           }}
           onSubmit={handleAddExpense}
           defaultType="expense"
@@ -662,14 +736,13 @@ const Dashboard = () => {
         <ExpenseForm
           onClose={() => {
             setShowIncomeForm(false);
-            setFormType(null);
           }}
           onSubmit={handleAddExpense}
           defaultType="income"
         />
       )}
 
-      <Notifications 
+      <Notifications
         notifications={notifications}
         onDismiss={(id) => setNotifications(prev => prev.filter(n => n.id !== id))}
       />
@@ -678,3 +751,5 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+
