@@ -23,9 +23,11 @@ import TopCategories from './TopCategories';
 =======
 import BudgetSection from '../BudgetSection';
 import Notifications from './Notifications';
-import FloatingAddButton from './FloatingAddButton';
 import ProfilePage from './ProfilePage';
 import Settings from './Settings';
+import SummaryCards from './SummaryCards';
+import TypeSelection from './TypeSelection';
+import TopCategories from './TopCategories';
 >>>>>>> 43c0a9ca (initial commit)
 import { useAuth } from '../../App';
 import '../../styles/Dashboard.css';
