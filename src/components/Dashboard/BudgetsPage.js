@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import BudgetSection from './BudgetSection';
 import '../../styles/BudgetSection.css';
 
+const expenseCategories = [
+  'Food', 'Travel', 'Rent', 'Entertainment', 'Healthcare',
+  'Shopping', 'Utilities', 'Education', 'Other'
+];
+
 const BudgetsPage = ({ budgets, onAddBudget, onDeleteBudget, onEditBudget }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newBudget, setNewBudget] = useState({
@@ -56,12 +61,17 @@ const BudgetsPage = ({ budgets, onAddBudget, onDeleteBudget, onEditBudget }) => 
             <h3>Add New Budget</h3>
             <div className="form-group">
               <label>Category</label>
-              <input
-                type="text"
+              <select
                 value={newBudget.category}
                 onChange={(e) => setNewBudget({...newBudget, category: e.target.value})}
-                placeholder="e.g., Food, Travel"
-              />
+              >
+                <option value="">Select a category</option>
+                {expenseCategories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="form-group">
               <label>Limit ($)</label>

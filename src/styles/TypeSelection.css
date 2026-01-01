@@ -91,15 +91,15 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.1), transparent);
   transition: left 0.5s ease;
 }
 
 .type-selection-option:hover {
-  border-color: #3b82f6;
+  border-color: #22C55E;
   background: #f8fafc;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
 }
 
 .type-selection-option:hover::before {
@@ -120,7 +120,7 @@
 }
 
 .type-selection-option:hover .type-selection-option-icon {
-  background: #3b82f6;
+  background:#10B981;
   color: white;
   transform: scale(1.1);
 }
@@ -134,7 +134,7 @@
 }
 
 .type-selection-option:hover .type-selection-option-label {
-  color: #3b82f6;
+  color: #10B981;
 }
 
 .type-selection-actions {

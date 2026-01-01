@@ -48,7 +48,7 @@
 }
 
 .floating-menu-item.income:hover {
-  border-color: #10b981;
+  border-color: #22C55E;
   background: #ecfdf5;
 }
 
@@ -72,7 +72,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  background: linear-gradient(135deg, #10B981, #0D9488);
   border: none;
   color: white;
   font-size: 1.5rem;
@@ -80,7 +80,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+  box-shadow: 0 4px 14px 0 rgba(34, 197, 94, 0.39);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -88,7 +88,7 @@
 
 .floating-add-btn:hover {
   transform: scale(1.1);
-  box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.5);
+  box-shadow: 0 6px 20px 0 rgba(34, 197, 94, 0.5);
 }
 
 .floating-add-btn:active {

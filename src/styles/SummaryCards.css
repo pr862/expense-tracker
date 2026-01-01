@@ -15,7 +15,7 @@
 
 /* Total Balance */
 .total-balance {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  background: linear-gradient(135deg, #10B981, #0D9488);
   color: #ffffff;
 }
 
@@ -60,6 +60,10 @@
   color: #94a3b8;
 }
 
+.savings-label {
+  color: #7c3aed;
+}
+
 /* Icons */
 .icon {
   width: 36px;
@@ -82,8 +86,8 @@
 }
 
 .icon.savings {
-  background: #ede9fe;
-  color: #7c3aed;
+  background: #7c3aed;
+  color: white;
 }
 
 /* Amount */
@@ -111,15 +115,16 @@
 }
 
 .progress-bar {
-  width: 65%;
   height: 100%;
   background: #7c3aed;
   border-radius: 999px;
+  transition: width 0.4s ease;
 }
+
 
 .progress-text {
   margin-top: 6px;
   font-size: 12px;
-  text-align: right;
+  text-align: center;
   color: #64748b;
 }
