@@ -1,7 +1,8 @@
 .sidebar {
   width: 240px;
   height: 100vh;
-  background: #0f172a;
+  background: #023a2a; /* dark green */
+  ;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -20,25 +21,35 @@
 }
 
 .sidebar-logo span {
-  color: #38bdf8;
+  color: #10B981;
 }
 
 .add-expense-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #38bdf8;
-  color: #000;
+  background: linear-gradient(135deg, #10B981, #0D9488);
+  color: #ffffff;
   border: none;
   padding: 10px;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   margin-bottom: 20px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
 }
 
 .add-expense-btn:hover {
-  background: #0ea5e9;
+  background: linear-gradient(135deg, #22C55E, #0F766E);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.add-expense-btn:active {
+  background: linear-gradient(135deg, #0D9488, #0F766E);  
+  transform: translateY(0);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
 .sidebar-nav {
@@ -57,17 +68,17 @@
 }
 
 .nav-item:hover {
-  background: #1e293b;
+  background: #023a2a; /* dark green */
 }
 
 .nav-item.active {
-  background: #1e293b;
-  color: #38bdf8;
+  background: #023a2a; /* dark green */
+  color: #10B981;
 }
 
 .sidebar-bottom {
-  border-top: 1px solid #1e293b;
-  padding-top: 10px;
+  border-top: 1px solid #023a2a; /* dark green */
+
 }
 
 .logout-btn {

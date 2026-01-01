@@ -30,8 +30,8 @@ select {
 }
 
 .export-btn {
-  background: #eef2ff;
-  color: #4f46e5;
+  background: linear-gradient(135deg, #10B981, #0D9488);
+  color: #ffffff;
   border: none;
   border-radius: 10px;
   padding: 8px 16px;

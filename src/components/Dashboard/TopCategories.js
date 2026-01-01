@@ -1,11 +1,16 @@
+import React, { useState } from "react";
 import "./TopCategories.css";
 
 const TopCategories = ({ categories }) => {
+  const [showAll, setShowAll] = useState(false);
+
+  const displayedCategories = showAll ? categories : categories.slice(0, 5);
+
   return (
     <div className="top-categories-card">
       <h3 className="card-title">Top Categories</h3>
 
-      {categories.map((cat, index) => {
+      {displayedCategories.map((cat, index) => {
         const percent = Math.min((cat.spent / cat.total) * 100, 100);
 
         return (
@@ -31,7 +36,9 @@ const TopCategories = ({ categories }) => {
         );
       })}
 
-      <button className="view-budget-btn">View Full Budget</button>
+      <button className="view-budget-btn" onClick={() => setShowAll(!showAll)}>
+        {showAll ? "Show Top 5" : "View Full Budget"}
+      </button>
     </div>
   );
 };

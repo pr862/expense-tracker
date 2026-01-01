@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import {
   AreaChart,
@@ -33,7 +33,7 @@ import { useAuth } from '../../App';
 import '../../styles/Dashboard.css';
 
 // Dashboard Home Page Component
-const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense, onAddExpense }) => {
+const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense, onAddExpense, navigate }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('this-week');
   const [isPeriodOpen, setIsPeriodOpen] = useState(false);
 
@@ -131,7 +131,7 @@ const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense
 
     // Map budgets to include spent amounts and colors (budgets already have spent calculated based on their period)
     const colors = ['blue', 'red', 'yellow', 'green', 'purple'];
-    return budgets.slice(0, 5).map((budget, index) => ({
+    return budgets.map((budget, index) => ({
       name: budget.category,
       spent: budget.spent || 0,
       total: budget.limit,
@@ -200,14 +200,14 @@ const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense
                 <AreaChart data={weeklyChartData}>
                   <defs>
                     <linearGradient id="spending" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fontSize: 12}} interval={0} />
                   <YAxis tickFormatter={(value) => `$${value.toLocaleString()}`} axisLine={false} tickLine={false} tick={{fontSize: 12}} />
                   <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Spending']} />
-                  <Area type="monotone" dataKey="value" stroke="#6366f1" fill="url(#spending)" />
+                  <Area type="monotone" dataKey="value" stroke="#10B981" fill="url(#spending)" />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
@@ -233,7 +233,8 @@ const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense
 
       {/* Recent Transactions */}
       <div className="recent-transactions">
-        <h3>Recent Transactions <span className="view-all">View all</span></h3>
+      <h3>Recent Transactions <span className="view-all">View all</span></h3>
+      
         {expenses.length === 0 ? (
           <p>No transactions recorded yet.</p>
         ) : (
@@ -261,6 +262,7 @@ const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense
 
 // Expenses Page Component
 const ExpensesPage = ({ expenses, onDeleteExpense, onEditExpense }) => {
+
   return (
     <div className="dashboard-main">
       <div className="dashboard-header">
@@ -269,6 +271,7 @@ const ExpensesPage = ({ expenses, onDeleteExpense, onEditExpense }) => {
       </div>
 
       <div className="dashboard-section">
+      
         <ExpenseList
           expenses={expenses}
           onDeleteExpense={onDeleteExpense}
@@ -292,17 +295,10 @@ const ReportsPage = ({ expenses, budgets }) => {
 };
 
 // Alerts Page Component
-const AlertsPage = () => {
+const AlertsPage = ({ notifications }) => {
   return (
     <div className="dashboard-main">
-      <div className="dashboard-header">
-        <h1>Alerts</h1>
-        <p>Manage your financial alerts and notifications</p>
-      </div>
-
-      <div className="dashboard-section">
-        <p>Alert management coming soon...</p>
-      </div>
+      <Notifications notifications={notifications} />
     </div>
   );
 };
@@ -311,15 +307,19 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useAuth();
+
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showIncomeForm, setShowIncomeForm] = useState(false);
   const [showTypeSelection, setShowTypeSelection] = useState(false);
+  const [editingExpense, setEditingExpense] = useState(null);
   const [expenses, setExpenses] = useState([]);
   const [budgets, setBudgets] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [user, setUser] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+ 
 
   // Function to calculate spent amounts for budgets based on expenses
   const calculateBudgetSpent = (budgets, expenses) => {
@@ -437,7 +437,7 @@ const Dashboard = () => {
     };
     setExpenses(prev => [...prev, newExpense]);
     setShowExpenseForm(false);
-    
+
     // Regenerate notifications after adding new expense
     setTimeout(() => {
       const newNotifications = generateAllNotifications();
@@ -477,19 +477,19 @@ const Dashboard = () => {
   const generateBudgetNotifications = React.useCallback((expenses, budgets) => {
     const notifications = [];
     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
-    
+
     // Check each budget
     budgets.forEach(budget => {
-      const monthExpenses = expenses.filter(exp => 
-        exp.date.startsWith(currentMonth) && 
-        exp.category === budget.category && 
+      const monthExpenses = expenses.filter(exp =>
+        exp.date.startsWith(currentMonth) &&
+        exp.category === budget.category &&
         exp.type === 'expense'
       );
-      
+
       const spentAmount = monthExpenses.reduce((sum, exp) => sum + exp.amount, 0);
       const budgetLimit = budget.limit;
       const spentPercentage = (spentAmount / budgetLimit) * 100;
-      
+
       if (spentPercentage >= 90) {
         notifications.push({
           id: generateId(),
@@ -508,7 +508,7 @@ const Dashboard = () => {
         });
       }
     });
-    
+
     return notifications;
   }, []);
 
@@ -552,10 +552,10 @@ const Dashboard = () => {
     const notifications = [];
     const totalExpenses = expenses.filter(exp => exp.type === 'expense').reduce((sum, exp) => sum + exp.amount, 0);
     const totalIncome = expenses.filter(exp => exp.type === 'income').reduce((sum, exp) => sum + exp.amount, 0);
-    
+
     if (totalIncome > 0) {
       const savingsRate = ((totalIncome - totalExpenses) / totalIncome) * 100;
-      
+
       if (savingsRate >= 20) {
         notifications.push({
           id: generateId(),
@@ -574,7 +574,7 @@ const Dashboard = () => {
         });
       }
     }
-    
+
     return notifications;
   }, []);
 
@@ -584,6 +584,7 @@ const Dashboard = () => {
       type: 'info',
       title: 'Welcome to Expense Tracker!',
       message: 'Start tracking your expenses to get personalized insights and budget recommendations.',
+      action: 'Get Started',
       timestamp: Date.now()
     }];
   }, []);
@@ -636,7 +637,7 @@ const Dashboard = () => {
       const updatedBudgets = calculateBudgetSpent(budgets, expenses);
       setBudgets(updatedBudgets);
     }
-  }, [expenses, budgets.length]); // Note: budgets.length to avoid infinite loop
+  }, [expenses, budgets]); // Note: budgets.length to avoid infinite loop
 
 
 
@@ -649,6 +650,7 @@ const Dashboard = () => {
 
   // Check if current route is dashboard home
   const isDashboardHome = location.pathname === '/dashboard';
+
 
   return (
     <div className="dashboard-container">
@@ -716,7 +718,7 @@ const Dashboard = () => {
               }}
             />
           } />
-          <Route path="alerts" element={<AlertsPage />} />
+          <Route path="alerts" element={<AlertsPage notifications={notifications} />} />
           <Route path="settings" element={<Settings />} />
         </Routes>
       </div>
@@ -736,8 +738,18 @@ const Dashboard = () => {
         <ExpenseForm
           onClose={() => {
             setShowExpenseForm(false);
+            setEditingExpense(null);
           }}
-          onSubmit={handleAddExpense}
+          onSubmit={(data) => {
+            if (editingExpense) {
+              handleEditExpense(editingExpense.id, data);
+              setEditingExpense(null);
+            } else {
+              handleAddExpense(data);
+            }
+            setShowExpenseForm(false);
+          }}
+          expense={editingExpense}
           defaultType="expense"
         />
       )}
@@ -746,8 +758,18 @@ const Dashboard = () => {
         <ExpenseForm
           onClose={() => {
             setShowIncomeForm(false);
+            setEditingExpense(null);
           }}
-          onSubmit={handleAddExpense}
+          onSubmit={(data) => {
+            if (editingExpense) {
+              handleEditExpense(editingExpense.id, data);
+              setEditingExpense(null);
+            } else {
+              handleAddExpense(data);
+            }
+            setShowIncomeForm(false);
+          }}
+          expense={editingExpense}
           defaultType="income"
         />
       )}

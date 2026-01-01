@@ -22,7 +22,7 @@
 
 /* Buttons */
 .primary-btn {
-  background: #6366f1;
+  background: #38BDF8;
   color: white;
   padding: 10px 18px;
   border-radius: 10px;
@@ -34,7 +34,7 @@
   padding: 10px;
   border-radius: 10px;
   border: 1px solid #c7d2fe;
-  color: #6366f1;
+  color: #38BDF8;
   background: white;
   margin-top: 12px;
 }
@@ -139,7 +139,7 @@ select {
   border: 1px dashed #cbd5f5;
   border-radius: 10px;
   background: transparent;
-  color: #6366f1;
+  color: #38BDF8;
 }
 
 /* Data */
