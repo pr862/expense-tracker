@@ -155,14 +155,7 @@ const ExpenseForm = ({ onClose, onSubmit, expense = null, defaultType = 'expense
            !errors.date;
   };
 
-  // Format currency input
-  const formatCurrency = (value) => {
-    if (!value) return '';
-    return parseFloat(value).toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  };
+
 
   return (
     <div className="expense-form-overlay">

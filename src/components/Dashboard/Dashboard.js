@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import {
   AreaChart,
   Area,
@@ -12,13 +12,14 @@ import Sidebar from './Sidebar';
 import ExpenseForm from './ExpenseForm';
 import ExpenseList from './ExpenseList';
 import Analytics from './Analytics';
-import BudgetsPage from './BudgetsPage';
+import BudgetPage from './BudgetPage';
 import Notifications from './Notifications';
 import ProfilePage from './ProfilePage';
 import Settings from './Settings';
 import SummaryCards from './SummaryCards';
 import TypeSelection from './TypeSelection';
 import TopCategories from './TopCategories';
+import { expenseCategories, incomeCategories } from './categories';
 import { useAuth } from '../../App';
 import '../../styles/Dashboard.css';
 
@@ -300,7 +301,6 @@ const AlertsPage = ({ notifications }) => {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { logout } = useAuth();
 
   const [showExpenseForm, setShowExpenseForm] = useState(false);
@@ -450,14 +450,7 @@ const Dashboard = () => {
     ));
   };
 
-  const handleAddBudget = (budgetData) => {
-    const newBudget = {
-      ...budgetData
-    };
-    const tempBudgets = [...budgets, newBudget];
-    const updatedBudgets = calculateBudgetSpent(tempBudgets, expenses);
-    setBudgets(updatedBudgets);
-  };
+
 
   const handleOpenTypeSelection = () => {
     setShowTypeSelection(true);
@@ -713,7 +706,7 @@ const Dashboard = () => {
             />
           } />
           <Route path="budgets" element={
-            <BudgetsPage
+            <BudgetPage
               budgets={budgets}
               expenses={expenses}
               onAddBudget={(budget) => {
