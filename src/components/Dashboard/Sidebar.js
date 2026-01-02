@@ -3,7 +3,6 @@ import {
   Home,
   Receipt,
   BarChart3,
-  Wallet,
   Bell,
   User,
   Settings,
@@ -34,9 +33,7 @@ const Sidebar = ({ onLogout, user, isMobileOpen, onMobileClose }) => {
           <BarChart3 size={18} /> Reports
         </NavLink>
 
-        <NavLink to="/dashboard/budgets" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <Wallet size={18} /> Budgets
-        </NavLink>
+
 
       
       </nav>

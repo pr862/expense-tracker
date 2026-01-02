@@ -12,28 +12,18 @@ import Sidebar from './Sidebar';
 import ExpenseForm from './ExpenseForm';
 import ExpenseList from './ExpenseList';
 import Analytics from './Analytics';
-<<<<<<< HEAD
-import BudgetsPage from './BudgetsPage';
+
 import Notifications from './Notifications';
 import ProfilePage from './ProfilePage';
 import Settings from './Settings';
 import SummaryCards from './SummaryCards';
 import TypeSelection from './TypeSelection';
 import TopCategories from './TopCategories';
-=======
-import BudgetSection from '../BudgetSection';
-import Notifications from './Notifications';
-import ProfilePage from './ProfilePage';
-import Settings from './Settings';
-import SummaryCards from './SummaryCards';
-import TypeSelection from './TypeSelection';
-import TopCategories from './TopCategories';
->>>>>>> 43c0a9ca (initial commit)
 import { useAuth } from '../../App';
 import '../../styles/Dashboard.css';
 
 // Dashboard Home Page Component
-const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense, onAddExpense, navigate }) => {
+const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense, onAddExpense, onDeleteBudget, onEditBudget, navigate }) => {
   const [selectedPeriod, setSelectedPeriod] = useState('this-week');
   const [isPeriodOpen, setIsPeriodOpen] = useState(false);
 
@@ -231,10 +221,13 @@ const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense
         </div>
       </div>
 
+
+
+  
+
       {/* Recent Transactions */}
       <div className="recent-transactions">
       <h3>Recent Transactions <span className="view-all">View all</span></h3>
-      
         {expenses.length === 0 ? (
           <p>No transactions recorded yet.</p>
         ) : (
@@ -293,6 +286,8 @@ const ReportsPage = ({ expenses, budgets }) => {
     </div>
   );
 };
+
+
 
 // Alerts Page Component
 const AlertsPage = ({ notifications }) => {
@@ -684,6 +679,14 @@ const Dashboard = () => {
               onDeleteExpense={handleDeleteExpense}
               onEditExpense={handleEditExpense}
               onAddExpense={handleOpenTypeSelection}
+              onDeleteBudget={(index) => {
+                setBudgets(prev => prev.filter((_, i) => i !== index));
+              }}
+              onEditBudget={(index, updatedBudget) => {
+                const tempBudgets = budgets.map((b, i) => i === index ? updatedBudget : b);
+                const updatedBudgets = calculateBudgetSpent(tempBudgets, expenses);
+                setBudgets(updatedBudgets);
+              }}
             />
           } />
           <Route path="profile" element={<ProfilePage user={user} setUser={setUser} />} />
@@ -700,24 +703,7 @@ const Dashboard = () => {
               budgets={budgets}
             />
           } />
-          <Route path="budgets" element={
-            <BudgetsPage
-              budgets={budgets}
-              expenses={expenses}
-              onAddBudget={(budget) => {
-                const newBudgetWithSpent = calculateBudgetSpent([budget], expenses)[0];
-                setBudgets(prev => [...prev, newBudgetWithSpent]);
-              }}
-              onDeleteBudget={(index) => {
-                setBudgets(prev => prev.filter((_, i) => i !== index));
-              }}
-              onEditBudget={(index, updatedBudget) => {
-                const tempBudgets = budgets.map((b, i) => i === index ? updatedBudget : b);
-                const updatedBudgets = calculateBudgetSpent(tempBudgets, expenses);
-                setBudgets(updatedBudgets);
-              }}
-            />
-          } />
+
           <Route path="alerts" element={<AlertsPage notifications={notifications} />} />
           <Route path="settings" element={<Settings />} />
         </Routes>
