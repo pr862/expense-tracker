@@ -122,7 +122,7 @@ const Analytics = ({ expenses, budgets }) => {
         return acc;
       }, {});
 
-    const colors = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#8b5cf6', '#64748b', '#ef4444', '#06b6d4'];
+    const colors = ['#22c55e', '#ec4899', '#f59e0b', '#10b981', '#8b5cf6', '#64748b', '#ef4444', '#06b6d4'];
 
     return Object.entries(categoryTotals)
       .map(([name, value], index) => ({

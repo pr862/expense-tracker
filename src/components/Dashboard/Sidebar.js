@@ -3,11 +3,10 @@ import {
   Home,
   Receipt,
   BarChart3,
-  Bell,
+  DollarSign,
   User,
   Settings,
-  LogOut,
-  Plus
+  LogOut
 } from "lucide-react";
 import '../../styles/Sidebar.css';
 
@@ -33,9 +32,9 @@ const Sidebar = ({ onLogout, user, isMobileOpen, onMobileClose }) => {
           <BarChart3 size={18} /> Reports
         </NavLink>
 
-
-
-      
+        <NavLink to="/dashboard/budgets" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <DollarSign size={18} /> Budgets
+        </NavLink>
       </nav>
 
       {/* Bottom Section */}

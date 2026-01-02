@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../../styles/ExpenseForm.css';
+import { expenseCategories, incomeCategories } from './categories';
 
 const ExpenseForm = ({ onClose, onSubmit, expense = null, defaultType = 'expense' }) => {
   const [formData, setFormData] = useState({
@@ -15,14 +16,7 @@ const ExpenseForm = ({ onClose, onSubmit, expense = null, defaultType = 'expense
   const [touched, setTouched] = useState({});
   const [focusedField, setFocusedField] = useState('');
 
-  const expenseCategories = [
-    'Food', 'Travel', 'Rent', 'Entertainment', 'Healthcare', 
-    'Shopping', 'Utilities', 'Education', 'Other'
-  ];
 
-  const incomeCategories = [
-    'Salary', 'Investment', 'Business', 'Freelance', 'Rental', 'Other'
-  ];
 
   const categories = formData.type === 'income' ? incomeCategories : expenseCategories;
 
@@ -244,7 +238,7 @@ const ExpenseForm = ({ onClose, onSubmit, expense = null, defaultType = 'expense
               >
                 <option value="">Select a category</option>
                 {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                  <option key={cat.value} value={cat.value}>{cat.icon} {cat.label}</option>
                 ))}
               </select>
               <label htmlFor="category" className="floating-label">

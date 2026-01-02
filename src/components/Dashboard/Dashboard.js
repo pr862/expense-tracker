@@ -12,13 +12,14 @@ import Sidebar from './Sidebar';
 import ExpenseForm from './ExpenseForm';
 import ExpenseList from './ExpenseList';
 import Analytics from './Analytics';
-
+import BudgetPage from './BudgetPage';
 import Notifications from './Notifications';
 import ProfilePage from './ProfilePage';
 import Settings from './Settings';
 import SummaryCards from './SummaryCards';
 import TypeSelection from './TypeSelection';
 import TopCategories from './TopCategories';
+import { expenseCategories, incomeCategories } from './categories';
 import { useAuth } from '../../App';
 import '../../styles/Dashboard.css';
 
@@ -27,18 +28,15 @@ const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense
   const [selectedPeriod, setSelectedPeriod] = useState('this-week');
   const [isPeriodOpen, setIsPeriodOpen] = useState(false);
 
-  // Category icons mapping
-  const categoryIcons = {
-    'Food': '🍎',
-    'Rent': '🏠',
-    'Salary': '💼',
-    'Transport': '🚗',
-    'Utilities': '⚡',
-    'Entertainment': '🎉',
-    'Groceries': '🛒',
-    'Shopping': '🛍️',
-    default: '💳'
-  };
+  // Category icons mapping from shared categories
+  const categoryIcons = useMemo(() => {
+    const icons = {};
+    [...expenseCategories, ...incomeCategories].forEach(cat => {
+      icons[cat.label] = cat.icon;
+    });
+    icons.default = '💳';
+    return icons;
+  }, []);
 
   // Weekly chart data (last 7 days for Recharts)
   const weeklyChartData = useMemo(() => {
@@ -121,12 +119,15 @@ const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense
 
     // Map budgets to include spent amounts and colors (budgets already have spent calculated based on their period)
     const colors = ['blue', 'red', 'yellow', 'green', 'purple'];
-    return budgets.map((budget, index) => ({
-      name: budget.category,
-      spent: budget.spent || 0,
-      total: budget.limit,
-      color: colors[index % colors.length]
-    }));
+    return budgets.map((budget, index) => {
+      const cat = expenseCategories.find(c => c.value === budget.category);
+      return {
+        name: cat ? cat.label : budget.category,
+        spent: budget.spent || 0,
+        total: budget.limit,
+        color: colors[index % colors.length]
+      };
+    });
   }, [budgets]);
 
   return (
@@ -428,7 +429,7 @@ const Dashboard = () => {
     const newExpense = {
       ...expenseData,
       id: Date.now().toString(),
-      date: new Date().toISOString().split('T')[0]
+      date: new Date().toLocaleDateString('en-CA')
     };
     setExpenses(prev => [...prev, newExpense]);
     setShowExpenseForm(false);
@@ -445,9 +446,18 @@ const Dashboard = () => {
   };
 
   const handleEditExpense = (expenseId, updatedData) => {
-    setExpenses(prev => prev.map(exp => 
+    setExpenses(prev => prev.map(exp =>
       exp.id === expenseId ? { ...exp, ...updatedData } : exp
     ));
+  };
+
+  const handleAddBudget = (budgetData) => {
+    const newBudget = {
+      ...budgetData
+    };
+    const tempBudgets = [...budgets, newBudget];
+    const updatedBudgets = calculateBudgetSpent(tempBudgets, expenses);
+    setBudgets(updatedBudgets);
   };
 
   const handleOpenTypeSelection = () => {
@@ -626,13 +636,13 @@ const Dashboard = () => {
     localStorage.setItem('budgets', JSON.stringify(budgets));
   }, [budgets]);
 
-  // Update budgets with calculated spent amounts whenever expenses or budgets change
+  // Update budgets with calculated spent amounts whenever expenses change
   useEffect(() => {
     if (budgets.length > 0) {
       const updatedBudgets = calculateBudgetSpent(budgets, expenses);
       setBudgets(updatedBudgets);
     }
-  }, [expenses, budgets]); // Note: budgets.length to avoid infinite loop
+  }, [expenses]);
 
 
 
@@ -644,7 +654,7 @@ const Dashboard = () => {
   }, [notifications]);
 
   // Check if current route is dashboard home
-  const isDashboardHome = location.pathname === '/dashboard';
+  // const isDashboardHome = location.pathname === '/dashboard';
 
 
   return (
@@ -689,7 +699,7 @@ const Dashboard = () => {
               }}
             />
           } />
-          <Route path="profile" element={<ProfilePage user={user} setUser={setUser} />} />
+          <Route path="profile" element={<ProfilePage user={user} setUser={setUser} expenses={expenses} />} />
           <Route path="expenses" element={
             <ExpensesPage
               expenses={expenses}
@@ -701,6 +711,23 @@ const Dashboard = () => {
             <ReportsPage
               expenses={expenses}
               budgets={budgets}
+            />
+          } />
+
+          <Route path="budgets" element={
+            <BudgetPage
+              budgets={budgets}
+              onAddBudget={handleAddBudget}
+              onEditBudget={(index, updatedBudget) => {
+                const tempBudgets = budgets.map((b, i) => i === index ? updatedBudget : b);
+                const updatedBudgets = calculateBudgetSpent(tempBudgets, expenses);
+                setBudgets(updatedBudgets);
+              }}
+              onDeleteBudget={(index) => {
+                const tempBudgets = budgets.filter((_, i) => i !== index);
+                const updatedBudgets = calculateBudgetSpent(tempBudgets, expenses);
+                setBudgets(updatedBudgets);
+              }}
             />
           } />
 

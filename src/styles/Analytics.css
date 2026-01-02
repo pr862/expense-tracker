@@ -55,7 +55,7 @@ select {
 }
 
 .kpi-card h4 {
-  color: #64748b;
+  color: #648b77;
   margin-bottom: 8px;
 }
 
@@ -66,7 +66,10 @@ select {
 .kpi-icon {
   margin-bottom: 10px;
   display: flex;
-  justify-content: left;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 100%;
 }
 
 .kpi-badge {
@@ -214,4 +217,19 @@ tbody tr:hover {
 
 .table-card {
   animation: fadeIn 0.5s ease-out 0.6s both;
+}
+
+/* Custom styles for date range selector to change blue defaults to green */
+select:focus {
+  outline: 2px solid #22c55e;
+  border-color: #22c55e;
+}
+
+select option:checked {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+select:hover {
+  border-color: #10B981;
 }

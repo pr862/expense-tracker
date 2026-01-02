@@ -1,6 +1,6 @@
 import "../../styles/ProfilePage.css";
 import { Camera, Lock, Bell, Trash2 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 
 import {
   Chart as ChartJS,
@@ -8,27 +8,30 @@ import {
   LinearScale,
   PointElement,
   LineElement,
-  BarElement,
-  ArcElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Pie, Line } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip as RechartsTooltip,
+} from "recharts";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  BarElement,
-  ArcElement,
   Title,
   Tooltip,
   Legend
 );
 
-const ProfilePage = () => {
+const ProfilePage = ({ user, setUser, expenses = [] }) => {
   const [profilePic, setProfilePic] = useState("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
   const [firstName, setFirstName] = useState("Alex");
   const [lastName, setLastName] = useState("Morgan");
@@ -39,6 +42,12 @@ const ProfilePage = () => {
   const [currency, setCurrency] = useState("USD ($)");
   const [budgetGoal, setBudgetGoal] = useState(3500);
   const [spent, setSpent] = useState(2700);
+
+  const totalSpent = useMemo(() => {
+    return expenses
+      .filter(exp => exp.type === 'expense')
+      .reduce((acc, exp) => acc + exp.amount, 0);
+  }, [expenses]);
   const [notifications, setNotifications] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [originalData, setOriginalData] = useState({});
@@ -136,48 +145,70 @@ const ProfilePage = () => {
 
   const fullName = `${firstName} ${lastName}`.trim();
 
-  const percentage = Math.min(100, Math.round((spent / budgetGoal) * 100));
+  const percentage = Math.min(100, Math.round((totalSpent / budgetGoal) * 100));
 
-  // Pie Chart Data
-  const pieData = {
-    labels: ['Housing', 'Food', 'Transport', 'Entertainment'],
-    datasets: [
-      {
-        label: 'Spending',
-        data: [40, 30, 20, 10],
-        backgroundColor: [
-          '#3b82f6',
-          '#10b981',
-          '#f59e0b',
-          '#ef4444',
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
+  // Expense Breakdown Data for Pie Chart
+  const expenseData = useMemo(() => {
+    const categoryTotals = expenses
+      .filter(exp => exp.type === 'expense')
+      .reduce((acc, exp) => {
+        acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
+        return acc;
+      }, {});
 
-  const pieOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'bottom',
-      },
-    },
-  };
+    const colors = ['#22c55e', '#ec4899', '#f59e0b', '#10b981', '#8b5cf6', '#64748b', '#ef4444', '#06b6d4'];
+
+    return Object.entries(categoryTotals)
+      .map(([name, value], index) => ({
+        name,
+        value,
+        color: colors[index % colors.length]
+      }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 6); // Top 6 categories
+  }, [expenses]);
 
   // Line Chart Data
-  const lineData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [
-      {
-        label: 'Spending',
-        data: [1200, 1500, 1800, 1600, 2000, 2200],
-        borderColor: '#6366f1',
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-        tension: 0.4,
-      },
-    ],
-  };
+  const lineData = useMemo(() => {
+    const currentDate = new Date();
+    const labels = [];
+    const data = [];
+
+    // Month names array for abbreviated labels
+    const monthNames = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const monthKey = `${year}-${month}`;
+      const monthIndex = date.getMonth();
+      const monthName = monthNames[monthIndex];
+
+      const monthlyExpenses = expenses
+        .filter(exp => exp.type === 'expense' && exp.date.startsWith(monthKey))
+        .reduce((sum, exp) => sum + exp.amount, 0);
+
+      labels.unshift(monthName); // Prepend to maintain order (oldest first)
+      data.unshift(monthlyExpenses);
+    }
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Spending',
+          data,
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          tension: 0.4,
+        },
+      ],
+    };
+  }, [expenses]);
 
   const lineOptions = {
     responsive: true,
@@ -344,7 +375,7 @@ const ProfilePage = () => {
             <div className="budget-info">
               <div className="budget-progress">
                 <div className="progress-label">
-                  <span>${spent}</span>
+                  <span>${totalSpent.toLocaleString()}</span>
                   <span>/ ${budgetGoal}</span>
                 </div>
                 <div className="progress-bar">
@@ -354,7 +385,34 @@ const ProfilePage = () => {
               </div>
             </div>
             <div className="chart-container">
-              <Pie data={pieData} options={pieOptions} />
+              <ResponsiveContainer width="100%" height={260}>
+                <PieChart>
+                  <Pie
+                    data={expenseData}
+                    innerRadius={70}
+                    outerRadius={100}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {expenseData.map((e, i) => (
+                      <Cell key={i} fill={e.color} />
+                    ))}
+                  </Pie>
+                  <RechartsTooltip formatter={(value) => [`$${value.toLocaleString()}`, '']} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="expense-list">
+              {expenseData.map((item) => (
+                <div key={item.name} className="expense-item">
+                  <span>
+                    <div style={{ backgroundColor: item.color, width: '12px', height: '12px', borderRadius: '50%', display: 'inline-block', marginRight: '8px' }} />
+                    {item.name}
+                  </span>
+                  <strong>${item.value.toLocaleString()}</strong>
+                </div>
+              ))}
             </div>
           </div>
 
