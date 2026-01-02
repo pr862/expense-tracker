@@ -12,14 +12,13 @@ import Sidebar from './Sidebar';
 import ExpenseForm from './ExpenseForm';
 import ExpenseList from './ExpenseList';
 import Analytics from './Analytics';
-import BudgetPage from './BudgetPage';
+import BudgetsPage from './BudgetsPage';
 import Notifications from './Notifications';
 import ProfilePage from './ProfilePage';
 import Settings from './Settings';
 import SummaryCards from './SummaryCards';
 import TypeSelection from './TypeSelection';
 import TopCategories from './TopCategories';
-import { expenseCategories, incomeCategories } from './categories';
 import { useAuth } from '../../App';
 import '../../styles/Dashboard.css';
 
@@ -713,24 +712,24 @@ const Dashboard = () => {
               budgets={budgets}
             />
           } />
-
           <Route path="budgets" element={
-            <BudgetPage
+            <BudgetsPage
               budgets={budgets}
-              onAddBudget={handleAddBudget}
+              expenses={expenses}
+              onAddBudget={(budget) => {
+                const newBudgetWithSpent = calculateBudgetSpent([budget], expenses)[0];
+                setBudgets(prev => [...prev, newBudgetWithSpent]);
+              }}
+              onDeleteBudget={(index) => {
+                setBudgets(prev => prev.filter((_, i) => i !== index));
+              }}
               onEditBudget={(index, updatedBudget) => {
                 const tempBudgets = budgets.map((b, i) => i === index ? updatedBudget : b);
                 const updatedBudgets = calculateBudgetSpent(tempBudgets, expenses);
                 setBudgets(updatedBudgets);
               }}
-              onDeleteBudget={(index) => {
-                const tempBudgets = budgets.filter((_, i) => i !== index);
-                const updatedBudgets = calculateBudgetSpent(tempBudgets, expenses);
-                setBudgets(updatedBudgets);
-              }}
             />
           } />
-
           <Route path="alerts" element={<AlertsPage notifications={notifications} />} />
           <Route path="settings" element={<Settings />} />
         </Routes>

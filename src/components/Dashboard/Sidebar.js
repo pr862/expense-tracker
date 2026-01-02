@@ -3,7 +3,11 @@ import {
   Home,
   Receipt,
   BarChart3,
+<<<<<<< HEAD
   DollarSign,
+=======
+  Bell,
+>>>>>>> 1c6d4d6b38197129dd4549289b4fcbadb8e21ca2
   User,
   Settings,
   LogOut
@@ -32,9 +36,15 @@ const Sidebar = ({ onLogout, user, isMobileOpen, onMobileClose }) => {
           <BarChart3 size={18} /> Reports
         </NavLink>
 
+<<<<<<< HEAD
         <NavLink to="/dashboard/budgets" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <DollarSign size={18} /> Budgets
         </NavLink>
+=======
+
+
+      
+>>>>>>> 1c6d4d6b38197129dd4549289b4fcbadb8e21ca2
       </nav>
 
       {/* Bottom Section */}
