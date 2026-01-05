@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, createContext, useContext } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import {
   AreaChart,
@@ -19,6 +19,11 @@ import Settings from './Settings';
 import SummaryCards from './SummaryCards';
 import TypeSelection from './TypeSelection';
 import TopCategories from './TopCategories';
+import FloatingAddButton from './FloatingAddButton';
+import QRScanner from './QRScanner';
+import BillScanner from './BillScanner';
+import SmartSuggestions from './SmartSuggestions';
+
 import { expenseCategories, incomeCategories } from './categories';
 import { useAuth } from '../../App';
 import '../../styles/Dashboard.css';
@@ -55,12 +60,14 @@ const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense
       endOfWeek = new Date(currentMonday.getTime() + 7 * 24 * 60 * 60 * 1000);
     }
 
+    const startStr = startOfWeek.toISOString().split('T')[0];
+    const endStr = endOfWeek.toISOString().split('T')[0];
+
     const weeklyExpenses = expenses
       .filter(expense => {
-        const expenseDate = new Date(expense.date);
         return expense.type === 'expense' &&
-               expenseDate >= startOfWeek &&
-               expenseDate < endOfWeek;
+               expense.date >= startStr &&
+               expense.date < endStr;
       })
       .reduce((acc, expense) => {
         const date = new Date(expense.date);
@@ -139,7 +146,6 @@ const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense
         </div>
         <div className="header-actions">
           <button className="download-btn" onClick={handleDownload}>Download</button>
-          <button className="add-btn" onClick={onAddExpense}>+ Add</button>
         </div>
       </div>
 
@@ -291,9 +297,10 @@ const ReportsPage = ({ expenses, budgets }) => {
 
 
 // Alerts Page Component
-const AlertsPage = ({ notifications }) => {
+const AlertsPage = ({ notifications, expenses, budgets }) => {
   return (
     <div className="dashboard-main">
+      <SmartSuggestions expenses={expenses} budgets={budgets} />
       <Notifications notifications={notifications} />
     </div>
   );
@@ -306,6 +313,9 @@ const Dashboard = () => {
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showIncomeForm, setShowIncomeForm] = useState(false);
   const [showTypeSelection, setShowTypeSelection] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+  const [showBillScanner, setShowBillScanner] = useState(false);
+
   const [editingExpense, setEditingExpense] = useState(null);
   const [expenses, setExpenses] = useState([]);
   const [budgets, setBudgets] = useState([]);
@@ -466,6 +476,26 @@ const Dashboard = () => {
     setShowTypeSelection(false);
     setShowIncomeForm(true);
     setShowExpenseForm(false);
+  };
+
+
+
+  const handleScanResult = (scanData) => {
+    // Auto-fill the expense form with scanned data
+    setShowExpenseForm(true);
+    setShowScanner(false);
+    // Set the scanned data as editingExpense to pre-fill the form
+    setEditingExpense(scanData);
+  };
+
+  const handleBillScanResult = (scanData) => {
+    // Auto-fill the expense form with scanned bill data
+    setShowExpenseForm(true);
+    setShowBillScanner(false);
+    // Set the scanned data as editingExpense to pre-fill the form
+    // Include detected currency if available
+    setEditingExpense({
+      ...scanData    });
   };
 
   // Notification generation functions
@@ -723,7 +753,7 @@ const Dashboard = () => {
               }}
             />
           } />
-          <Route path="alerts" element={<AlertsPage notifications={notifications} />} />
+          <Route path="alerts" element={<AlertsPage notifications={notifications} expenses={expenses} budgets={budgets} />} />
           <Route path="settings" element={<Settings />} />
         </Routes>
       </div>
@@ -776,6 +806,37 @@ const Dashboard = () => {
           }}
           expense={editingExpense}
           defaultType="income"
+        />
+      )}
+
+
+
+      <FloatingAddButton
+        onAddIncome={() => {
+          setShowIncomeForm(true);
+          setShowExpenseForm(false);
+          setShowTypeSelection(false);
+        }}
+        onAddExpense={() => {
+          setShowExpenseForm(true);
+          setShowIncomeForm(false);
+          setShowTypeSelection(false);
+        }}
+        onScanQR={() => setShowScanner(true)}
+        onScanBill={() => setShowBillScanner(true)}
+      />
+
+      {showScanner && (
+        <QRScanner
+          onScan={handleScanResult}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
+
+      {showBillScanner && (
+        <BillScanner
+          onScan={handleBillScanResult}
+          onClose={() => setShowBillScanner(false)}
         />
       )}
 

@@ -1,46 +1,35 @@
 import React, { useState } from 'react';
 import '../../styles/FloatingAddButton.css';
 
-const FloatingAddButton = ({ onAddIncome, onAddExpense }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const FloatingAddButton = ({ onAddExpense, onAddIncome, onScanQR, onScanBill }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
-  const handleToggle = () => {
-    setIsExpanded(!isExpanded);
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
   };
 
   return (
-    <div className="floating-add-container">
-      {isExpanded && (
-        <div className="floating-menu">
-          <button 
-            className="floating-menu-item income"
-            onClick={() => {
-              onAddIncome();
-              setIsExpanded(false);
-            }}
-          >
-            <span className="menu-icon">💰</span>
-            <span className="menu-label">Add Income</span>
-          </button>
-          <button 
-            className="floating-menu-item expense"
-            onClick={() => {
-              onAddExpense();
-              setIsExpanded(false);
-            }}
-          >
-            <span className="menu-icon">💳</span>
-            <span className="menu-label">Add Expense</span>
-          </button>
-        </div>
-      )}
-      
-      <button 
-        className={`floating-add-btn ${isExpanded ? 'active' : ''}`}
-        onClick={handleToggle}
-        aria-label="Add new transaction"
-      >
-        <span className="btn-icon">{isExpanded ? '✕' : '+'}</span>
+    <div className="floating-add-button">
+      <div className={`fab-menu ${isOpen ? 'open' : ''}`}>
+        <button className="fab-item expense" onClick={onAddExpense}>
+          <span className="fab-icon">💸</span>
+          <span className="fab-label">Expense</span>
+        </button>
+        <button className="fab-item income" onClick={onAddIncome}>
+          <span className="fab-icon">💰</span>
+          <span className="fab-label">Income</span>
+        </button>
+        <button className="fab-item scan" onClick={onScanQR}>
+          <span className="fab-icon">📱</span>
+          <span className="fab-label">Scan QR</span>
+        </button>
+        <button className="fab-item bill" onClick={onScanBill}>
+          <span className="fab-icon">📄</span>
+          <span className="fab-label">Scan Bill</span>
+        </button>
+      </div>
+      <button className="fab-main" onClick={toggleMenu}>
+        <span className="fab-icon">{isOpen ? '✕' : '+'}</span>
       </button>
     </div>
   );

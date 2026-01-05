@@ -38,7 +38,7 @@ const Sidebar = ({ onLogout, user, isMobileOpen, onMobileClose }) => {
         </NavLink>
 
         <NavLink to="/dashboard/alerts" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-          <Bell size={18} /> Alerts
+          <Bell size={18} /> Insights
         </NavLink>
       </nav>
 

@@ -1,6 +1,6 @@
 import "../../styles/ProfilePage.css";
 import { Camera, Lock, Bell, Trash2 } from "lucide-react";
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 
 import {
   Chart as ChartJS,
@@ -21,6 +21,8 @@ import {
   Tooltip as RechartsTooltip,
 } from "recharts";
 
+import { getCurrencyOptions, formatCurrency } from "../../utils/currency";
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -39,9 +41,8 @@ const ProfilePage = ({ user, setUser, expenses = [] }) => {
   const [email, setEmail] = useState("alex.morgan@example.com");
   const [phone, setPhone] = useState("+1 (555) 000-1234");
   const [bio, setBio] = useState("Software Engineer by day, aspiring chef by night. Trying to save for a house down payment.");
-  const [currency, setCurrency] = useState("USD ($)");
+  const [currency, setCurrency] = useState("USD");
   const [budgetGoal, setBudgetGoal] = useState(3500);
-  const [spent, setSpent] = useState(2700);
 
   const totalSpent = useMemo(() => {
     return expenses
@@ -56,6 +57,14 @@ const ProfilePage = ({ user, setUser, expenses = [] }) => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const fileInputRef = useRef(null);
+
+  // Load currency from localStorage on mount
+  useEffect(() => {
+    const savedCurrency = localStorage.getItem('userCurrency');
+    if (savedCurrency) {
+      setCurrency(savedCurrency);
+    }
+  }, []);
 
   const triggerFileInput = () => {
     fileInputRef.current?.click();
@@ -110,6 +119,8 @@ const ProfilePage = ({ user, setUser, expenses = [] }) => {
       currency,
       budgetGoal,
     });
+    // Save currency to localStorage
+    localStorage.setItem('userCurrency', currency);
     setIsEditing(false);
   };
 
@@ -344,13 +355,16 @@ const ProfilePage = ({ user, setUser, expenses = [] }) => {
             <div className="form-grid">
               <div>
                 <label>Currency</label>
-                <select 
-                  value={currency} 
+                <select
+                  value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
                   disabled={!isEditing}
                 >
-                  <option>USD ($)</option>
-                  <option>INR (₹)</option>
+                  {getCurrencyOptions().map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
               </div>
 

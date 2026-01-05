@@ -1,0 +1,184 @@
+.bill-scanner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.bill-scanner-modal {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.scanner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.scanner-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.scanner-content {
+  text-align: center;
+}
+
+.scanner-error {
+  padding: 20px;
+}
+
+.error-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+.scanner-error p {
+  margin: 10px 0;
+  color: #d9534f;
+}
+
+.retry-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.retry-btn:hover {
+  background-color: #0056b3;
+}
+
+.scanner-instructions {
+  margin-bottom: 20px;
+}
+
+.scanner-instructions p {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: #666;
+}
+
+.tips-list {
+  text-align: left;
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.tips-list li {
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #555;
+}
+
+.file-upload-section {
+  margin-bottom: 20px;
+}
+
+.file-input {
+  display: none;
+}
+
+.file-upload-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  display: inline-block;
+  transition: background-color 0.3s;
+}
+
+.file-upload-btn:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.file-upload-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.scanning-indicator {
+  margin-top: 20px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #28a745;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.scanning-indicator p {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: #666;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #28a745;
+  transition: width 0.3s ease;
+}
+
+.scanner-info {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  border-left: 4px solid #007bff;
+}
+
+.scanner-info p {
+  margin: 0;
+  font-size: 14px;
+  color: #495057;
+}

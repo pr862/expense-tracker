@@ -11,14 +11,13 @@ import {
   Pie,
   Cell,
   Legend,
-  LineChart,
-  Line,
 } from "recharts";
 import { format, parseISO } from "date-fns";
+import SmartSuggestions from "./SmartSuggestions";
 import "../../styles/Analytics.css";
 
 const Analytics = ({ expenses, budgets }) => {
-  const [selectedWeek, setSelectedWeek] = useState('this');
+  const [selectedWeek] = useState('this');
 
   const getWeeklyData = (weekOffset = 0) => {
     const today = new Date();
@@ -286,6 +285,8 @@ const Analytics = ({ expenses, budgets }) => {
           </div>
         </div>
       </div>
+
+
 
       {/* Transactions */}
       <div className="table-card">
