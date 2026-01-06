@@ -1,5 +1,6 @@
 import React from 'react';
 import '../../styles/SummaryCards.css';
+import { IncomeIndicatorIcon, ExpenseIndicatorIcon, SavingsIcon } from './Icons';
 
 const SummaryCards = ({ expenses, budgets }) => {
   const formatCurrency = (amount) => {
@@ -86,7 +87,7 @@ const SummaryCards = ({ expenses, budgets }) => {
       <div className="summary-card">
         <div className="card-header">
           <span className="header-label">Income</span>
-          <div className="icon income">↑</div>
+          <div className="icon income"><IncomeIndicatorIcon size={24} /></div>
         </div>
         <h3 className="amount">{formatCurrency(totalIncome)}</h3>
         <p className="subtext">{formatChange(incomeChange)} vs last month</p>
@@ -96,7 +97,7 @@ const SummaryCards = ({ expenses, budgets }) => {
       <div className="summary-card">
         <div className="card-header">
           <span className="header-label">Expense</span>
-          <div className="icon expense">↓</div>
+          <div className="icon expense"><ExpenseIndicatorIcon size={24} /></div>
         </div>
         <h3 className="amount">{formatCurrency(totalExpenses)}</h3>
         <p className="subtext">{formatChange(expenseChange)} vs last month</p>
@@ -106,7 +107,7 @@ const SummaryCards = ({ expenses, budgets }) => {
       <div className="summary-card">
         <div className="card-header">
           <span className="header-label savings-label">Savings</span>
-          <div className="icon savings">$</div>
+          <div className="icon savings"><SavingsIcon size={24} /></div>
         </div>
         <h3 className="amount">{formatCurrency(savings)}</h3>
         <div className="progress">

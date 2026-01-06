@@ -314,8 +314,10 @@ dashboard-container {
 }
 
 .icon {
-  font-size: 1.25rem;
   min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .description {
@@ -638,8 +640,10 @@ dashboard-container {
 }
 
 .empty-icon {
-  font-size: 2rem;
   margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .chart-empty p {

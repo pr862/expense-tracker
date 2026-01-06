@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import '../../styles/BudgetPage.css';
 import { expenseCategories } from './categories';
+import { BudgetIcon, TrendDownIcon, WalletIcon, getCategoryIcon } from './Icons';
 
 const BudgetPage = ({ budgets, onAddBudget, onEditBudget, onDeleteBudget }) => {
   const [showForm, setShowForm] = useState(false);
@@ -18,9 +19,9 @@ const BudgetPage = ({ budgets, onAddBudget, onEditBudget, onDeleteBudget }) => {
   const utilizationRate = totalAllocated > 0 ? (totalSpent / totalAllocated * 100).toFixed(1) : 0;
   const remainingRate = totalAllocated > 0 ? ((totalAllocated - totalSpent) / totalAllocated * 100).toFixed(1) : 0;
 
-  const getCategoryIcon = (categoryValue) => {
+  const getCategoryIconComponent = (categoryValue) => {
     const cat = expenseCategories.find(c => c.value === categoryValue);
-    return cat ? cat.icon : '📦';
+    return cat ? cat.icon : <WalletIcon size={24} color="#6B7280" />;
   };
 
   const getCategoryLabel = (categoryValue) => {
@@ -91,19 +92,19 @@ const BudgetPage = ({ budgets, onAddBudget, onEditBudget, onDeleteBudget }) => {
       {/* KPI Summary Cards */}
       <div className="kpi-grid">
         <div className="kpi-card">
-          <div className="kpi-icon">💰</div>
+          <div className="kpi-icon"><BudgetIcon size={32} color="#3B82F6" /></div>
           <h4>Total Allocated</h4>
           <h2>${totalAllocated.toLocaleString()}</h2>
           <span className="kpi-badge green">Full Allocation</span>
         </div>
         <div className="kpi-card">
-          <div className="kpi-icon">📉</div>
+          <div className="kpi-icon"><TrendDownIcon size={32} color="#EF4444" /></div>
           <h4>Total Spent</h4>
           <h2>${totalSpent.toLocaleString()}</h2>
           <span className={`kpi-badge ${totalSpent > totalAllocated ? 'red' : 'green'}`}>{utilizationRate}% Utilized</span>
         </div>
         <div className="kpi-card">
-          <div className="kpi-icon">💳</div>
+          <div className="kpi-icon"><WalletIcon size={32} color="#8B5CF6" /></div>
           <h4>Total Remaining</h4>
           <h2>${(totalAllocated - totalSpent).toLocaleString()}</h2>
           <span className="kpi-badge blue">{remainingRate}% Available</span>
@@ -115,7 +116,7 @@ const BudgetPage = ({ budgets, onAddBudget, onEditBudget, onDeleteBudget }) => {
         <div className="budget-list">
           {budgets.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">💰</div>
+              <div className="empty-icon"><BudgetIcon size={48} color="#94A3B8" /></div>
               <p>No budgets set yet. Click "Add Budget" above to start tracking your spending!</p>
             </div>
           ) : (
@@ -123,7 +124,7 @@ const BudgetPage = ({ budgets, onAddBudget, onEditBudget, onDeleteBudget }) => {
               <div key={budget.id} className="budget-card">
                 <div className="budget-header">
                   <div className="budget-icon">
-                    {getCategoryIcon(budget.category)}
+                    {getCategoryIconComponent(budget.category)}
                   </div>
                   <h4>{getCategoryLabel(budget.category)}</h4>
                   <p>Period: {budget.period}</p>

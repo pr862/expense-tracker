@@ -32,8 +32,10 @@
 }
 
 .kpi-icon {
-  font-size: 2.5rem;
   margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .kpi-card h4 {
@@ -127,7 +129,6 @@
 }
 
 .budget-icon {
-  font-size: 2rem;
   background: linear-gradient(135deg, #c3f8e6 0%, #f8faf9 100%);
   border-radius: 50%;
   width: 60px;
@@ -135,7 +136,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
@@ -264,9 +264,11 @@
 }
 
 .empty-icon {
-  font-size: 4rem;
   margin-bottom: 1.5rem;
   animation: bounce 2s infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @keyframes fadeIn {
@@ -487,7 +489,6 @@
   .budget-icon {
     width: 50px;
     height: 50px;
-    font-size: 1.5rem;
   }
 
   .budget-body {

@@ -1,5 +1,6 @@
 import React from 'react';
 import '../../styles/TypeSelection.css';
+import { TransactionIcon, IncomeActionIcon } from './Icons';
 
 const TypeSelection = ({ onSelectExpense, onSelectIncome, onClose }) => {
   return (
@@ -12,11 +13,11 @@ const TypeSelection = ({ onSelectExpense, onSelectIncome, onClose }) => {
 
         <div className="type-selection-options">
           <div className="type-selection-option" onClick={onSelectExpense}>
-            <span className="type-selection-option-icon">💳</span>
+            <span className="type-selection-option-icon"><TransactionIcon size={28} /></span>
             <h3 className="type-selection-option-label">Add Expense</h3>
           </div>
           <div className="type-selection-option" onClick={onSelectIncome}>
-            <span className="type-selection-option-icon">💰</span>
+            <span className="type-selection-option-icon"><IncomeActionIcon size={28} /></span>
             <h3 className="type-selection-option-label">Add Income</h3>
           </div>
         </div>

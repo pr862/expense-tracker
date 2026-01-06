@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import ExpenseForm from "./ExpenseForm";
 import { expenseCategories, incomeCategories } from "./categories";
 import "../../styles/ExpenseList.css";
+import { 
+  EmptyListIcon, IncomeActionIcon, TransactionIcon, 
+  NoteIcon, getCategoryIcon 
+} from "./Icons";
 
 const ExpenseList = ({
   expenses,
@@ -58,7 +62,7 @@ const ExpenseList = ({
 
       {sorted.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-icon">📊</div>
+          <div className="empty-icon"><EmptyListIcon size={48} /></div>
           <h4>No transactions yet</h4>
           <p>Add your first income or expense</p>
         </div>
@@ -86,13 +90,13 @@ const ExpenseList = ({
                 >
                   <div className="expense-cell">
                     <span className={`type-badge ${expense.type}`}>
-                      {expense.type === "income" ? "💰" : "💳"}
+                      {expense.type === "income" ? <IncomeActionIcon size={18} /> : <TransactionIcon size={18} />}
                     </span>
                   </div>
 
                   <div className="expense-cell category-info">
                     <span className="category-icon">
-                      {category?.icon || "📝"}
+                      {category?.icon || <NoteIcon size={18} />}
                     </span>
                     <span className="category-name">
                       {category?.label || expense.category}

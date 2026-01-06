@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'r
 import './App.css';
 import financeHeroImage from './assets/finance-hero.svg';
 import Dashboard from './components/Dashboard/Dashboard';
+import { LogoIcon } from './components/Dashboard/Icons';
 
 // Authentication state management
 const AuthProvider = ({ children }) => {
@@ -109,7 +110,7 @@ const LandingPage = ({ onLogin, onSignUp, isAuthenticated }) => {
       <nav className="navbar">
         <div className="navbar-container">
           <div className="navbar-logo">
-            <span className="logo-icon">💰</span>
+            <span className="logo-icon"><LogoIcon size={28} color="#3B82F6" /></span>
             <span className="logo-text">ExpenseTracker</span>
           </div>
           
@@ -282,7 +283,7 @@ const LandingPage = ({ onLogin, onSignUp, isAuthenticated }) => {
           <div className="footer-content">
             <div className="footer-brand">
               <div className="navbar-logo">
-                <span className="logo-icon">💰</span>
+                <span className="logo-icon"><LogoIcon size={28} color="#3B82F6" /></span>
                 <span className="logo-text">ExpenseTracker</span>
               </div>
               <p>Take control of your financial future with smart expense tracking.</p>

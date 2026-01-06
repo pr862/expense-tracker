@@ -27,6 +27,7 @@ import SmartSuggestions from './SmartSuggestions';
 import { expenseCategories, incomeCategories } from './categories';
 import { useAuth } from '../../App';
 import '../../styles/Dashboard.css';
+import { ChartUpIcon, EmptyChartIcon, TransactionIcon } from './Icons';
 
 // Dashboard Home Page Component
 const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense, onAddExpense, onDeleteBudget, onEditBudget, navigate }) => {
@@ -209,7 +210,7 @@ const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense
               </ResponsiveContainer>
             ) : (
               <div className="chart-empty">
-                <div className="empty-icon">📈</div>
+                <div className="empty-icon"><ChartUpIcon size={48} /></div>
                 <p>No data available for chart</p>
               </div>
             )}
@@ -221,7 +222,7 @@ const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense
             <TopCategories categories={topCategoriesData} />
           ) : (
             <div className="chart-empty">
-              <div className="empty-icon">📊</div>
+              <div className="empty-icon"><EmptyChartIcon size={48} /></div>
               <p>No budget data available</p>
             </div>
           )}
@@ -242,7 +243,7 @@ const DashboardHome = ({ expenses, budgets, user, onDeleteExpense, onEditExpense
             {expenses.slice(-5).reverse().map(exp => (
               <div key={exp.id} className={`transaction-item ${exp.type === 'expense' ? 'expense' : 'income'}`}>
                 <div className="transaction-info">
-                  <span className="icon">{categoryIcons[exp.category] || categoryIcons.default}</span>
+                  <span className="icon">{categoryIcons[exp.category] || <TransactionIcon size={20} />}</span>
                   <div>
                     <div className="description">{exp.category} - {exp.note}</div>
                     <div className="date-time">{exp.date} {exp.time || '12:00 PM'}</div>

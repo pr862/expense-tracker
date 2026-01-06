@@ -1,18 +1,19 @@
 import React from 'react';
 import '../../styles/Notifications.css';
+import { SuccessIcon, WarningIcon, ErrorIcon, InfoIcon, CloseIcon } from './Icons';
 
 const Notifications = ({ notifications, onDismiss }) => {
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'success':
-        return '✅';
+        return <SuccessIcon size={20} color="#10B981" />;
       case 'warning':
-        return '⚠️';
+        return <WarningIcon size={20} color="#EAB308" />;
       case 'error':
-        return '❌';
+        return <ErrorIcon size={20} color="#EF4444" />;
       case 'info':
       default:
-        return 'ℹ️';
+        return <InfoIcon size={20} color="#3B82F6" />;
     }
   };
 
@@ -64,7 +65,7 @@ const Notifications = ({ notifications, onDismiss }) => {
               className="notification-dismiss"
               onClick={() => onDismiss(notification.id)}
             >
-              ✕
+              <CloseIcon size={16} color="#6B7280" />
             </button>
           </div>
         </div>
