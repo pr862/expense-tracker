@@ -23,10 +23,10 @@ const FloatingAddButton = ({ onAddExpense, onAddIncome, onScanQR, onScanBill }) 
           <span className="fab-icon">📱</span>
           <span className="fab-label">Scan QR</span>
         </button>
-        <button className="fab-item bill" onClick={onScanBill}>
+        {/* <button className="fab-item bill" onClick={onScanBill}>
           <span className="fab-icon">📄</span>
           <span className="fab-label">Scan Bill</span>
-        </button>
+        </button> */}
       </div>
       <button className="fab-main" onClick={toggleMenu}>
         <span className="fab-icon">{isOpen ? '✕' : '+'}</span>

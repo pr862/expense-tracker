@@ -19,3 +19,6 @@ yarn-error.log*
 
 # Cache files (to avoid large file issues)
 node_modules/.cache/
+
+# Test files
+test_ocr.js
