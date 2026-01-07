@@ -110,7 +110,7 @@ const LandingPage = ({ onLogin, onSignUp, isAuthenticated }) => {
       <nav className="navbar">
         <div className="navbar-container">
           <div className="navbar-logo">
-            <span className="logo-icon"><LogoIcon size={28} color="#3B82F6" /></span>
+            <span className="logo-icon"><LogoIcon size={28} color="#10b981" /></span>
             <span className="logo-text">ExpenseTracker</span>
           </div>
           
