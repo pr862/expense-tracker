@@ -746,6 +746,7 @@
 .range-slider {
   flex: 1;
   -webkit-appearance: none;
+  appearance: none;
   height: 6px;
   background: #e2e8f0;
   border-radius: 3px;
@@ -754,6 +755,7 @@
 
 .range-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
+  appearance: none;
   width: 20px;
   height: 20px;
   background: #3b82f6;
