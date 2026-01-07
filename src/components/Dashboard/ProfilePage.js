@@ -1,70 +1,167 @@
 import "../../styles/ProfilePage.css";
-import { Camera, Lock, Bell, Trash2 } from "lucide-react";
-import { useState, useRef, useMemo, useEffect } from "react";
-
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip as RechartsTooltip,
-} from "recharts";
-
-import { getCurrencyOptions, formatCurrency } from "../../utils/currency";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import { 
+  Camera, 
+  LogOut, 
+  User, 
+  CreditCard, 
+  Bell, 
+  Lock, 
+  ShieldCheck,
+  AlertTriangle,
+  Eye,
+  EyeOff,
+  Smartphone,
+  Mail,
+  MessageSquare,
+  Clock,
+  Shield,
+  Key,
+  History,
+  Trash2,
+  Plus,
+  Check,
+  X,
+  TrendingUp,
+  TrendingDown
+} from "lucide-react";
+import { useState, useRef, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { format, parseISO } from "date-fns";
 
 const ProfilePage = ({ user, setUser, expenses = [] }) => {
-  const [profilePic, setProfilePic] = useState("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
-  const [firstName, setFirstName] = useState("Alex");
-  const [lastName, setLastName] = useState("Morgan");
-  const [location, setLocation] = useState("San Francisco, CA");
-  const [email, setEmail] = useState("alex.morgan@example.com");
-  const [phone, setPhone] = useState("+1 (555) 000-1234");
-  const [bio, setBio] = useState("Software Engineer by day, aspiring chef by night. Trying to save for a house down payment.");
-  const [currency, setCurrency] = useState("USD");
-  const [budgetGoal, setBudgetGoal] = useState(3500);
-
-  const totalSpent = useMemo(() => {
-    return expenses
-      .filter(exp => exp.type === 'expense')
-      .reduce((acc, exp) => acc + exp.amount, 0);
-  }, [expenses]);
-  const [notifications, setNotifications] = useState(true);
+  // State for user details
+  const [profilePic, setProfilePic] = useState("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80");
+  const [displayName, setDisplayName] = useState("User");
+  const [email, setEmail] = useState("user@example.com");
+  const [phone, setPhone] = useState("+1 (555) 000-0000");
+  const [location, setLocation] = useState("Location");
+  const [bio, setBio] = useState("Financial Minimalist. Focused on building sustainable wealth systems.");
+  
+  // Edit State
   const [isEditing, setIsEditing] = useState(false);
-  const [originalData, setOriginalData] = useState({});
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
-  // Load currency from localStorage on mount
-  useEffect(() => {
-    const savedCurrency = localStorage.getItem('userCurrency');
-    if (savedCurrency) {
-      setCurrency(savedCurrency);
+  // Active Tab State (Visual only for this demo)
+  const [activeTab, setActiveTab] = useState("Profile");
+
+  // Billing State - Initialized to 0 values
+  const [billingPlan, setBillingPlan] = useState("Free");
+  const [billingAmount] = useState("$0.00");
+  const [billingDate, setBillingDate] = useState("N/A");
+  const [paymentMethods, setPaymentMethods] = useState([]);
+
+  // Alerts State - Initialized with default values
+  const [spendingLimit, setSpendingLimit] = useState(1000);
+  const [budgetAlertThreshold, setBudgetAlertThreshold] = useState(80);
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [pushNotifications, setPushNotifications] = useState(true);
+  const [smsNotifications, setSmsNotifications] = useState(false);
+  const [alertFrequency, setAlertFrequency] = useState("instant");
+
+  // Security State
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [loginHistory] = useState([]);
+
+  // Monthly spending calculation using useMemo
+  const { currentMonthSpending, lastMonthSpending, spendingChange } = useMemo(() => {
+    const currentDate = new Date();
+    const currentMonth = format(currentDate, 'yyyy-MM');
+    const lastMonth = format(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1), 'yyyy-MM');
+
+    // Ensure expenses is an array
+    const expensesArray = expenses || [];
+
+    const currentMonthExpenses = expensesArray.filter(exp => {
+      if (exp.type !== 'expense') return false;
+      // Handle both ISO date format (yyyy-MM-dd) and other formats
+      try {
+        const expDate = parseISO(exp.date);
+        return format(expDate, 'yyyy-MM') === currentMonth;
+      } catch (e) {
+        // Fallback for other date formats
+        return exp.date.startsWith(currentMonth);
+      }
+    });
+
+    const lastMonthExpenses = expensesArray.filter(exp => {
+      if (exp.type !== 'expense') return false;
+      try {
+        const expDate = parseISO(exp.date);
+        return format(expDate, 'yyyy-MM') === lastMonth;
+      } catch (e) {
+        return exp.date.startsWith(lastMonth);
+      }
+    });
+
+    const currentTotal = currentMonthExpenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+    const lastTotal = lastMonthExpenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+
+    // Calculate percentage change
+    let change = 0;
+    if (lastTotal > 0) {
+      change = ((currentTotal - lastTotal) / lastTotal) * 100;
+    } else if (currentTotal > 0) {
+      change = 100; // First month with spending
     }
-  }, []);
+
+    return {
+      currentMonthSpending: currentTotal,
+      lastMonthSpending: lastTotal,
+      spendingChange: change
+    };
+  }, [expenses]);
+
+  // Password visibility toggle
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  // Add payment method
+  const addPaymentMethod = () => {
+    const newId = paymentMethods.length + 1;
+    setPaymentMethods([...paymentMethods, { 
+      id: newId, 
+      type: "Visa", 
+      last4: "0000", 
+      expiry: "12/28", 
+      isDefault: false 
+    }]);
+  };
+
+  // Remove payment method
+  const removePaymentMethod = (id) => {
+    setPaymentMethods(paymentMethods.filter(pm => pm.id !== id));
+  };
+
+  // Set default payment method
+  const setDefaultPayment = (id) => {
+    setPaymentMethods(paymentMethods.map(pm => ({
+      ...pm,
+      isDefault: pm.id === id
+    })));
+  };
+
+  // Save password
+  const savePassword = () => {
+    if (newPassword !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+    if (newPassword.length < 8) {
+      alert("Password must be at least 8 characters!");
+      return;
+    }
+    // Simulate password change
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    alert("Password updated successfully!");
+  };
 
   const triggerFileInput = () => {
     fileInputRef.current?.click();
@@ -81,433 +178,594 @@ const ProfilePage = ({ user, setUser, expenses = [] }) => {
     }
   };
 
-  const handleEditClick = () => {
-    const data = {
-      firstName,
-      lastName,
-      location,
-      email,
-      phone,
-      bio,
-      currency,
-      budgetGoal,
-    };
-    setOriginalData(data);
-    setIsEditing(true);
+  const toggleEdit = () => {
+    setIsEditing(!isEditing);
   };
 
-  const handleCancel = () => {
-    setFirstName(originalData.firstName);
-    setLastName(originalData.lastName);
-    setLocation(originalData.location);
-    setEmail(originalData.email);
-    setPhone(originalData.phone);
-    setBio(originalData.bio);
-    setCurrency(originalData.currency);
-    setBudgetGoal(originalData.budgetGoal);
-    setIsEditing(false);
-  };
-
-  const handleSave = () => {
-    console.log("Profile updated:", {
-      firstName,
-      lastName,
-      location,
-      email,
-      phone,
-      bio,
-      currency,
-      budgetGoal,
-    });
-    // Save currency to localStorage
-    localStorage.setItem('userCurrency', currency);
-    setIsEditing(false);
-  };
-
-  const handleChangePasswordClick = () => {
-    setShowPasswordModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowPasswordModal(false);
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-  };
-
-  const handlePasswordSubmit = (e) => {
-    e.preventDefault();
-    if (newPassword !== confirmPassword) {
-      alert('New passwords do not match');
-      return;
-    }
-    // For now, just log to console
-    console.log('Password change attempted:', { currentPassword, newPassword });
-    // Close modal
-    handleCloseModal();
-  };
-
-  const handleNameChange = (e) => {
-    const value = e.target.value;
-    const names = value.split(" ", 2);
-    setFirstName(names[0] || "");
-    setLastName(names[1] || "");
-  };
-
-  const fullName = `${firstName} ${lastName}`.trim();
-
-  const percentage = Math.min(100, Math.round((totalSpent / budgetGoal) * 100));
-
-  // Expense Breakdown Data for Pie Chart
-  const expenseData = useMemo(() => {
-    const categoryTotals = expenses
-      .filter(exp => exp.type === 'expense')
-      .reduce((acc, exp) => {
-        acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
-        return acc;
-      }, {});
-
-    const colors = ['#22c55e', '#ec4899', '#f59e0b', '#10b981', '#8b5cf6', '#64748b', '#ef4444', '#06b6d4'];
-
-    return Object.entries(categoryTotals)
-      .map(([name, value], index) => ({
-        name,
-        value,
-        color: colors[index % colors.length]
-      }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 6); // Top 6 categories
-  }, [expenses]);
-
-  // Line Chart Data
-  const lineData = useMemo(() => {
-    const currentDate = new Date();
-    const labels = [];
-    const data = [];
-
-    // Month names array for abbreviated labels
-    const monthNames = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const monthKey = `${year}-${month}`;
-      const monthIndex = date.getMonth();
-      const monthName = monthNames[monthIndex];
-
-      const monthlyExpenses = expenses
-        .filter(exp => exp.type === 'expense' && exp.date.startsWith(monthKey))
-        .reduce((sum, exp) => sum + exp.amount, 0);
-
-      labels.unshift(monthName); // Prepend to maintain order (oldest first)
-      data.unshift(monthlyExpenses);
-    }
-
-    return {
-      labels,
-      datasets: [
-        {
-          label: 'Spending',
-          data,
-          borderColor: '#6366f1',
-          backgroundColor: 'rgba(99, 102, 241, 0.1)',
-          tension: 0.4,
-        },
-      ],
-    };
-  }, [expenses]);
-
-  const lineOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
+  const handleLogout = () => {
+    // Clear user session data
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("userData");
+    sessionStorage.clear();
+    
+    // Navigate to login page
+    navigate("/login");
+    
+    console.log("User logged out successfully");
   };
 
   return (
-    <div className="profile-page">
-      {/* Header */}
-      <div className="profile-header">
-        <div className="profile-user">
-          <div className="avatar">
-            <img
-              src={profilePic}
-              alt="profile"
-            />
-            <button className="camera-btn" onClick={triggerFileInput}>
-              <Camera size={16} />
+    <div className="profile-page-container">
+      {/* Top Background Gradient Area */}
+      <div className="header-background"></div>
+
+      <div className="content-wrapper">
+        
+        {/* Floating Navigation Pill */}
+        <div className="nav-pill-container">
+          <div className="nav-pill">
+            <button 
+              className={`nav-item ${activeTab === 'Profile' ? 'active' : ''}`}
+              onClick={() => setActiveTab('Profile')}
+            >
+              <User size={18} /> Profile
             </button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handlePhotoUpload}
-              accept="image/*"
-              style={{ display: 'none' }}
-            />
-          </div>
-
-          <div>
-            <input
-              type="text"
-              value={fullName}
-              onChange={handleNameChange}
-              className="name-input"
-              readOnly={!isEditing}
-            />
-            <p>📍 <input
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="location-input"
-              readOnly={!isEditing}
-            /></p>
-            <span>Member since September 2023</span>
-          </div>
-        </div>
-        <div className="header-actions">
-          {!isEditing ? (
-            <button className="edit-btn" onClick={handleEditClick}>
-              Edit Profile
+            <button 
+              className={`nav-item ${activeTab === 'Billing' ? 'active' : ''}`}
+              onClick={() => setActiveTab('Billing')}
+            >
+              <CreditCard size={18} /> Billing
             </button>
-          ) : (
-            <div className="edit-controls">
-              <button className="cancel-btn" onClick={handleCancel}>
-                Cancel Edit
-              </button>
-              <button className="save-btn" onClick={handleSave}>
-                Save Changes
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Main Grid */}
-      <div className="profile-grid">
-        {/* Left */}
-        <div className="left-section">
-          {/* AI Insight */}
-          
-
-          {/* Personal Info */}
-          <div className="card">
-            <h3>Personal Information</h3>
-
-            <div className="form-grid">
-              <div>
-                <label>First Name</label>
-                <input 
-                  value={firstName} 
-                  onChange={(e) => setFirstName(e.target.value)}
-                  readOnly={!isEditing}
-                />
-              </div>
-              <div>
-                <label>Last Name</label>
-                <input 
-                  value={lastName} 
-                  onChange={(e) => setLastName(e.target.value)}
-                  readOnly={!isEditing}
-                />
-              </div>
-              <div>
-                <label>Email Address</label>
-                <input 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)}
-                  readOnly={!isEditing}
-                />
-              </div>
-              <div>
-                <label>Phone Number</label>
-                <input 
-                  value={phone} 
-                  onChange={(e) => setPhone(e.target.value)}
-                  readOnly={!isEditing}
-                />
-              </div>
-            </div>
-
-            <label>Bio</label>
-            <textarea 
-              rows="3"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              readOnly={!isEditing}
-            />
-          </div>
-
-          {/* Preferences */}
-          <div className="card">
-            <h3>Preferences</h3>
-
-            <div className="form-grid">
-              <div>
-                <label>Currency</label>
-                <select
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
-                  disabled={!isEditing}
-                >
-                  {getCurrencyOptions().map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label>Monthly Budget Goal</label>
-                <input 
-                  type="number"
-                  value={budgetGoal} 
-                  onChange={(e) => setBudgetGoal(Number(e.target.value) || 0)}
-                  readOnly={!isEditing}
-                />
-              </div>
-            </div>
+            <button 
+              className={`nav-item ${activeTab === 'Alerts' ? 'active' : ''}`}
+              onClick={() => setActiveTab('Alerts')}
+            >
+              <Bell size={18} /> Alerts
+            </button>
+            <button 
+              className={`nav-item ${activeTab === 'Security' ? 'active' : ''}`}
+              onClick={() => setActiveTab('Security')}
+            >
+              <Lock size={18} /> Security
+            </button>
           </div>
         </div>
 
-        {/* Right */}
-        <div className="right-section">
-          {/* Monthly Overview */}
-          <div className="card">
-            <h3>Monthly Overview</h3>
-            <div className="budget-info">
-              <div className="budget-progress">
-                <div className="progress-label">
-                  <span>${totalSpent.toLocaleString()}</span>
-                  <span>/ ${budgetGoal}</span>
-                </div>
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: `${percentage}%` }}></div>
-                </div>
-                <span className="progress-text">{percentage}% Used</span>
+        <div className="profile-grid">
+          {/* LEFT COLUMN: Profile Card */}
+          <div className="profile-card sidebar-card">
+            <div className="avatar-section">
+              <div className="avatar-wrapper">
+                <img src={profilePic} alt="Profile" className="profile-img" />
+                <button className="camera-btn" onClick={triggerFileInput}>
+                  <Camera size={14} />
+                </button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handlePhotoUpload}
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                />
+              </div>
+              <h2 className="user-name">{displayName}</h2>
+              <div className="badge">
+                <ShieldCheck size={14} /> Premium Platinum Member
               </div>
             </div>
-            <div className="chart-container">
-              <ResponsiveContainer width="100%" height={260}>
-                <PieChart>
-                  <Pie
-                    data={expenseData}
-                    innerRadius={70}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {expenseData.map((e, i) => (
-                      <Cell key={i} fill={e.color} />
+
+            <div className="action-buttons">
+              <button className="btn-settings">SETTINGS</button>
+              <button className="btn-upgrade">UPGRADE</button>
+            </div>
+
+            <div className="stats-box">
+              <div className="stats-header">
+                <span className="stats-label">THIS MONTH</span>
+                <span className={`stats-perc ${spendingChange <= 0 ? 'positive' : 'negative'}`}>
+                  {spendingChange === 0 ? (
+                    <span style={{ color: '#64748b' }}>No change</span>
+                  ) : spendingChange < 0 ? (
+                    <>
+                      <TrendingDown size={14} />
+                      {Math.abs(spendingChange).toFixed(1)}%
+                    </>
+                  ) : (
+                    <>
+                      <TrendingUp size={14} />
+                      {spendingChange.toFixed(1)}%
+                    </>
+                  )}
+                </span>
+              </div>
+              <div className="stats-amount">${currentMonthSpending.toLocaleString()}</div>
+              {lastMonthSpending > 0 && (
+                <div className="stats-comparison">
+                  vs ${lastMonthSpending.toLocaleString()} last month
+                </div>
+              )}
+            </div>
+
+            <div className="logout-section">
+              <button className="btn-logout" onClick={handleLogout}>
+                <LogOut size={18} /> Log out of account
+              </button>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN: Tab Content */}
+          <div className="profile-card details-card">
+            
+            {/* PROFILE TAB */}
+            {activeTab === 'Profile' && (
+              <>
+                <div className="card-header">
+                  <div>
+                    <h2 className="card-title">Account Details</h2>
+                    <p className="card-subtitle">Your information is secure and encrypted.</p>
+                  </div>
+                  <button className="btn-edit" onClick={toggleEdit}>
+                    {isEditing ? "Save Details" : "Edit Details"}
+                  </button>
+                </div>
+
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>DISPLAY NAME</label>
+                    <input 
+                      type="text" 
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      readOnly={!isEditing}
+                      className={isEditing ? 'editable' : ''}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>EMAIL ADDRESS</label>
+                    <input 
+                      type="email" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      readOnly={!isEditing}
+                      className={isEditing ? 'editable' : ''}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>PHONE</label>
+                    <input 
+                      type="text" 
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      readOnly={!isEditing}
+                      className={isEditing ? 'editable' : ''}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>LOCATION</label>
+                    <input 
+                      type="text" 
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      readOnly={!isEditing}
+                      className={isEditing ? 'editable' : ''}
+                    />
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label>PROFESSIONAL BIO</label>
+                    <textarea 
+                      rows="4"
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      readOnly={!isEditing}
+                      className={isEditing ? 'editable' : ''}
+                    ></textarea>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* BILLING TAB */}
+            {activeTab === 'Billing' && (
+              <>
+                <div className="card-header">
+                  <div>
+                    <h2 className="card-title">Billing & Plans</h2>
+                    <p className="card-subtitle">Manage your subscription and payment methods.</p>
+                  </div>
+                </div>
+
+                {/* Current Plan Section */}
+                <div className="section-billing">
+                  <div className="section-header-billing">
+                    <CreditCard size={20} />
+                    <h3>Current Plan</h3>
+                  </div>
+                  <div className="plan-card">
+                    <div className="plan-info">
+                      <span className="plan-badge">{billingPlan}</span>
+                      <p className="plan-description">Basic access to essential features</p>
+                    </div>
+                    <div className="plan-price">
+                      <span className="price-amount">{billingAmount}</span>
+                      <span className="price-period">/month</span>
+                    </div>
+                  </div>
+                  <div className="billing-info-row">
+                    <div className="billing-info-item">
+                      <span className="billing-label">Next billing date</span>
+                      <span className="billing-value">{billingDate}</span>
+                    </div>
+                    <div className="billing-info-item">
+                      <span className="billing-label">Amount</span>
+                      <span className="billing-value">{billingAmount}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment Methods Section */}
+                <div className="section-billing">
+                  <div className="section-header-billing">
+                    <CreditCard size={20} />
+                    <h3>Payment Methods</h3>
+                  </div>
+                  <div className="payment-methods-list">
+                    {paymentMethods.map(method => (
+                      <div key={method.id} className={`payment-method-item ${method.isDefault ? 'default' : ''}`}>
+                        <div className="card-info">
+                          <div className="card-icon">
+                            <CreditCard size={20} />
+                          </div>
+                          <div className="card-details">
+                            <span className="card-type">{method.type} •••• {method.last4}</span>
+                            <span className="card-expiry">Expires {method.expiry}</span>
+                          </div>
+                          {method.isDefault && <span className="default-badge">Default</span>}
+                        </div>
+                        <div className="card-actions">
+                          {!method.isDefault && (
+                            <button className="btn-set-default" onClick={() => setDefaultPayment(method.id)}>
+                              Set Default
+                            </button>
+                          )}
+                          <button className="btn-remove-card" onClick={() => removePaymentMethod(method.id)}>
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
                     ))}
-                  </Pie>
-                  <RechartsTooltip formatter={(value) => [`$${value.toLocaleString()}`, '']} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="expense-list">
-              {expenseData.map((item) => (
-                <div key={item.name} className="expense-item">
-                  <span>
-                    <div style={{ backgroundColor: item.color, width: '12px', height: '12px', borderRadius: '50%', display: 'inline-block', marginRight: '8px' }} />
-                    {item.name}
-                  </span>
-                  <strong>${item.value.toLocaleString()}</strong>
+                  </div>
+                  <button className="btn-add-payment" onClick={addPaymentMethod}>
+                    <Plus size={18} /> Add Payment Method
+                  </button>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          {/* Spending Trend */}
-          <div className="card">
-            <h3>Spending Trend</h3>
-            <p>Last 6 months</p>
-            <div className="chart-container">
-              <Line data={lineData} options={lineOptions} />
-            </div>
-          </div>
+                {/* Billing History Section */}
+                <div className="section-billing">
+                  <div className="section-header-billing">
+                    <History size={20} />
+                    <h3>Billing History</h3>
+                  </div>
+                  {paymentMethods.length === 0 ? (
+                    <div className="empty-state">
+                      <p>No billing history available</p>
+                      <p className="empty-state-subtitle">Add a payment method to see your billing history</p>
+                    </div>
+                  ) : (
+                    <div className="billing-history-table">
+                      <div className="history-header">
+                        <span>Date</span>
+                        <span>Description</span>
+                        <span>Amount</span>
+                        <span>Status</span>
+                      </div>
+                      <div className="history-row">
+                        <span>Feb 15, 2025</span>
+                        <span>Free Plan - Monthly</span>
+                        <span>$0.00</span>
+                        <span className="status-paid"><Check size={14} /> Paid</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
 
-          {/* Account */}
-          <div className="card">
-            <h3>Account</h3>
+            {/* ALERTS TAB */}
+            {activeTab === 'Alerts' && (
+              <>
+                <div className="card-header">
+                  <div>
+                    <h2 className="card-title">Alerts & Notifications</h2>
+                    <p className="card-subtitle">Configure your spending alerts and notification preferences.</p>
+                  </div>
+                </div>
 
-            <div className="account-item" onClick={handleChangePasswordClick}>
-              <Lock size={18} /> Change Password
-            </div>
+                {/* Spending Limits Section */}
+                <div className="section-alerts">
+                  <div className="section-header-alerts">
+                    <AlertTriangle size={20} />
+                    <h3>Spending Limits</h3>
+                  </div>
+                  <div className="alert-setting">
+                    <div className="setting-label-group">
+                      <label>Monthly Spending Limit</label>
+                      <span className="setting-description">Get notified when you approach this limit</span>
+                    </div>
+                    <div className="slider-container">
+                      <input 
+                        type="range" 
+                        min="1000" 
+                        max="20000" 
+                        step="500"
+                        value={spendingLimit}
+                        onChange={(e) => setSpendingLimit(Number(e.target.value))}
+                        className="range-slider"
+                      />
+                      <span className="slider-value">${spendingLimit.toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <div className="alert-setting">
+                    <div className="setting-label-group">
+                      <label>Budget Alert Threshold</label>
+                      <span className="setting-description">Alert when spending reaches this percentage of budget</span>
+                    </div>
+                    <div className="slider-container">
+                      <input 
+                        type="range" 
+                        min="50" 
+                        max="100" 
+                        step="5"
+                        value={budgetAlertThreshold}
+                        onChange={(e) => setBudgetAlertThreshold(Number(e.target.value))}
+                        className="range-slider"
+                      />
+                      <span className="slider-value">{budgetAlertThreshold}%</span>
+                    </div>
+                  </div>
+                </div>
 
-            <div className="account-item">
-              <Bell size={18} /> Notifications
-              <input 
-                type="checkbox" 
-                checked={notifications}
-                onChange={(e) => setNotifications(e.target.checked)}
-              />
-            </div>
+                {/* Notification Channels Section */}
+                <div className="section-alerts">
+                  <div className="section-header-alerts">
+                    <Bell size={20} />
+                    <h3>Notification Channels</h3>
+                  </div>
+                  <div className="notification-channels">
+                    <div className="channel-item">
+                      <div className="channel-info">
+                        <Mail size={20} />
+                        <div className="channel-details">
+                          <span className="channel-name">Email Notifications</span>
+                          <span className="channel-description">Receive alerts in your inbox</span>
+                        </div>
+                      </div>
+                      <label className="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          checked={emailNotifications}
+                          onChange={() => setEmailNotifications(!emailNotifications)}
+                        />
+                        <span className="toggle-slider"></span>
+                      </label>
+                    </div>
+                    <div className="channel-item">
+                      <div className="channel-info">
+                        <Smartphone size={20} />
+                        <div className="channel-details">
+                          <span className="channel-name">Push Notifications</span>
+                          <span className="channel-description">Browser and mobile push alerts</span>
+                        </div>
+                      </div>
+                      <label className="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          checked={pushNotifications}
+                          onChange={() => setPushNotifications(!pushNotifications)}
+                        />
+                        <span className="toggle-slider"></span>
+                      </label>
+                    </div>
+                    <div className="channel-item">
+                      <div className="channel-info">
+                        <MessageSquare size={20} />
+                        <div className="channel-details">
+                          <span className="channel-name">SMS Notifications</span>
+                          <span className="channel-description">Text message alerts</span>
+                        </div>
+                      </div>
+                      <label className="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          checked={smsNotifications}
+                          onChange={() => setSmsNotifications(!smsNotifications)}
+                        />
+                        <span className="toggle-slider"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
 
-            <div className="account-item danger">
-              <Trash2 size={18} /> Delete Account
-            </div>
+                {/* Alert Frequency Section */}
+                <div className="section-alerts">
+                  <div className="section-header-alerts">
+                    <Clock size={20} />
+                    <h3>Alert Frequency</h3>
+                  </div>
+                  <div className="frequency-options">
+                    <label className={`frequency-option ${alertFrequency === 'instant' ? 'active' : ''}`}>
+                      <input 
+                        type="radio" 
+                        name="frequency" 
+                        value="instant"
+                        checked={alertFrequency === 'instant'}
+                        onChange={(e) => setAlertFrequency(e.target.value)}
+                      />
+                      <span>Instant</span>
+                    </label>
+                    <label className={`frequency-option ${alertFrequency === 'daily' ? 'active' : ''}`}>
+                      <input 
+                        type="radio" 
+                        name="frequency" 
+                        value="daily"
+                        checked={alertFrequency === 'daily'}
+                        onChange={(e) => setAlertFrequency(e.target.value)}
+                      />
+                      <span>Daily Digest</span>
+                    </label>
+                    <label className={`frequency-option ${alertFrequency === 'weekly' ? 'active' : ''}`}>
+                      <input 
+                        type="radio" 
+                        name="frequency" 
+                        value="weekly"
+                        checked={alertFrequency === 'weekly'}
+                        onChange={(e) => setAlertFrequency(e.target.value)}
+                      />
+                      <span>Weekly Summary</span>
+                    </label>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* SECURITY TAB */}
+            {activeTab === 'Security' && (
+              <>
+                <div className="card-header">
+                  <div>
+                    <h2 className="card-title">Security Settings</h2>
+                    <p className="card-subtitle">Protect your account and manage security preferences.</p>
+                  </div>
+                </div>
+
+                {/* Password Change Section */}
+                <div className="section-security">
+                  <div className="section-header-security">
+                    <Key size={20} />
+                    <h3>Change Password</h3>
+                  </div>
+                  <div className="password-form">
+                    <div className="form-group">
+                      <label>CURRENT PASSWORD</label>
+                      <div className="password-input-wrapper">
+                        <input 
+                          type={showPassword ? "text" : "password"}
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                          placeholder="Enter current password"
+                        />
+                        <button 
+                          type="button" 
+                          className="toggle-password"
+                          onClick={togglePasswordVisibility}
+                        >
+                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label>NEW PASSWORD</label>
+                      <div className="password-input-wrapper">
+                        <input 
+                          type={showPassword ? "text" : "password"}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          placeholder="Enter new password"
+                        />
+                        <button 
+                          type="button" 
+                          className="toggle-password"
+                          onClick={togglePasswordVisibility}
+                        >
+                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label>CONFIRM NEW PASSWORD</label>
+                      <div className="password-input-wrapper">
+                        <input 
+                          type={showPassword ? "text" : "password"}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Confirm new password"
+                        />
+                        <button 
+                          type="button" 
+                          className="toggle-password"
+                          onClick={togglePasswordVisibility}
+                        >
+                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
+                    </div>
+                    <button className="btn-save-password" onClick={savePassword}>
+                      Update Password
+                    </button>
+                  </div>
+                </div>
+
+                {/* Two-Factor Authentication Section */}
+                <div className="section-security">
+                  <div className="section-header-security">
+                    <Shield size={20} />
+                    <h3>Two-Factor Authentication</h3>
+                  </div>
+                  <div className="two-factor-card">
+                    <div className="two-factor-info">
+                      <div className={`two-factor-status ${twoFactorEnabled ? 'enabled' : 'disabled'}`}>
+                        {twoFactorEnabled ? <Check size={20} /> : <X size={20} />}
+                        <span>{twoFactorEnabled ? 'Enabled' : 'Disabled'}</span>
+                      </div>
+                      <p className="two-factor-description">
+                        Add an extra layer of security to your account by requiring a verification code in addition to your password.
+                      </p>
+                    </div>
+                    <button 
+                      className={`btn-toggle-2fa ${twoFactorEnabled ? 'disable' : 'enable'}`}
+                      onClick={() => setTwoFactorEnabled(!twoFactorEnabled)}
+                    >
+                      {twoFactorEnabled ? 'Disable 2FA' : 'Enable 2FA'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Login Activity Section */}
+                <div className="section-security">
+                  <div className="section-header-security">
+                    <History size={20} />
+                    <h3>Login Activity</h3>
+                  </div>
+                  <div className="login-history-list">
+                    {loginHistory.map(session => (
+                      <div key={session.id} className="session-item">
+                        <div className="session-info">
+                          <div className="session-device">
+                            <Smartphone size={18} />
+                            <span>{session.device}</span>
+                          </div>
+                          <div className="session-meta">
+                            <span className="session-location">{session.location}</span>
+                            <span className="session-time">{session.time}</span>
+                          </div>
+                        </div>
+                        {session.current && <span className="current-badge">Current</span>}
+                      </div>
+                    ))}
+                  </div>
+                  <button className="btn-logout-all">
+                    <LogOut size={16} /> Sign out of all other sessions
+                  </button>
+                </div>
+              </>
+            )}
+
           </div>
         </div>
       </div>
-
-      {/* Password Change Modal */}
-      {showPasswordModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Change Password</h3>
-            <form onSubmit={handlePasswordSubmit}>
-              <div className="form-group">
-                <label>Current Password</label>
-                <input
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>New Password</label>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Confirm New Password</label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="modal-actions">
-                <button type="button" className="cancel-btn" onClick={handleCloseModal}>
-                  Cancel
-                </button>
-                <button type="submit" className="save-btn">
-                  Change Password
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

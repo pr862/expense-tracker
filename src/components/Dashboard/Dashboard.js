@@ -20,8 +20,6 @@ import SummaryCards from './SummaryCards';
 import TypeSelection from './TypeSelection';
 import TopCategories from './TopCategories';
 import FloatingAddButton from './FloatingAddButton';
-import QRScanner from './QRScanner';
-import BillScanner from './BillScanner';
 import SmartSuggestions from './SmartSuggestions';
 
 import { expenseCategories, incomeCategories } from './categories';
@@ -827,7 +825,7 @@ const Dashboard = () => {
         onScanBill={() => setShowBillScanner(true)}
       />
 
-      {showScanner && (
+      {/* {showScanner && (
         <QRScanner
           onScan={handleScanResult}
           onClose={() => setShowScanner(false)}
@@ -839,7 +837,7 @@ const Dashboard = () => {
           onScan={handleBillScanResult}
           onClose={() => setShowBillScanner(false)}
         />
-      )}
+      )} */}
 
       <Notifications
         notifications={notifications}

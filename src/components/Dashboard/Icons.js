@@ -150,14 +150,14 @@ export const ScanQRIcon = ({ size = 24, color = '#3B82F6' }) => (
   </svg>
 );
 
-export const PlusIcon = ({ size = 24, color = '#3B82F6' }) => (
+export const PlusIcon = ({ size = 24, color = '#f4f4faff' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="12" y1="5" x2="12" y2="19" />
     <line x1="5" y1="12" x2="19" y2="12" />
   </svg>
 );
 
-export const CloseIcon = ({ size = 24, color = '#EF4444' }) => (
+export const CloseIcon = ({ size = 24, color = '#fcfbfbff' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="18" y1="6" x2="6" y2="18" />
     <line x1="6" y1="6" x2="18" y2="18" />

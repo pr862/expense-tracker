@@ -48,6 +48,10 @@ const Sidebar = ({ onLogout, user, isMobileOpen, onMobileClose }) => {
           <User size={18} /> Profile
         </NavLink>
 
+        {/* <NavLink to="/dashboard/settings" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+          <Settings size={18} /> Settings
+        </NavLink> */}
+
         <NavLink to="/dashboard/settings" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
           <Settings size={18} /> Settings
         </NavLink>

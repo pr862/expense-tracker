@@ -1,10 +1,35 @@
+/* --- Positioning & Layering --- */
 .floating-add-button {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 24px;
+  right: 24px;
   z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
 }
 
+/* --- Backdrop (The dark overlay) --- */
+.fab-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4); /* Dim background */
+  backdrop-filter: blur(2px); /* Optional: Glass effect */
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.fab-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* --- Main Toggle Button --- */
 .fab-main {
   width: 56px;
   height: 56px;
@@ -12,80 +37,104 @@
   background: linear-gradient(135deg, #10B981, #059669);
   border: none;
   color: white;
-  font-size: 24px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .fab-main:hover {
-  transform: scale(1.1);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  transform: scale(1.05);
 }
 
+.fab-main:active {
+  transform: scale(0.95);
+}
+
+/* Icon rotation animation */
+.icon-container {
+  display: flex;
+  transition: transform 0.3s ease;
+}
+.icon-container.rotate {
+  transform: rotate(45deg); /* Rotates Plus to look like X */
+}
+
+/* --- Menu Container --- */
 .fab-menu {
-  position: absolute;
-  bottom: 70px;
-  right: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* --- Menu Items Wrapper --- */
+.fab-item-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  
+  /* Start hidden */
   opacity: 0;
+  transform: translateY(20px) scale(0.8);
   visibility: hidden;
-  transform: translateY(20px);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  
+  /* This variable handles the staggered delay defined in React style={{'--i': 0}} */
+  transition-delay: calc(var(--i) * 0.05s); 
 }
 
-.fab-menu.open {
+/* When open, reveal items */
+.open .fab-item-wrapper {
   opacity: 1;
+  transform: translateY(0) scale(1);
   visibility: visible;
-  transform: translateY(0);
 }
 
+/* --- Sub Buttons (Small Circles) --- */
 .fab-item {
-  width: 150px;
-  height: 40px;
-  border-radius: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   border: none;
-  background-color: #f8f9fa;
   color: #333;
-  font-size: 14px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background-color: white;
+  transition: all 0.2s ease;
 }
 
 .fab-item:hover {
-  background-color: #e9ecef;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.fab-item.expense:hover {
-  background-color: #ffdddd;
-}
+/* Semantic Colors */
+.fab-item.expense { color: #ef4444; }
+.fab-item.expense:hover { background-color: #fef2f2; }
 
-.fab-item.income:hover {
-  background-color: #ddffdd;
-}
+.fab-item.income { color: #10b981; }
+.fab-item.income:hover { background-color: #ecfdf5; }
 
-.fab-item.scan:hover {
-  background-color: #ddddff;
-}
+.fab-item.scan { color: #3b82f6; }
+.fab-item.scan:hover { background-color: #eff6ff; }
 
-.fab-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-}
-
+/* --- Side Labels --- */
 .fab-label {
-  font-weight: 500;
+  background-color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4b5563;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  pointer-events: none; /* Let clicks pass through to backdrop if missed */
 }
